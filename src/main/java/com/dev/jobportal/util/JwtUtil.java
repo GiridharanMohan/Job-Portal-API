@@ -1,11 +1,16 @@
 package com.dev.jobportal.util;
 
+import com.dev.jobportal.model.User;
+import com.dev.jobportal.repository.UserRepository;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
 import java.nio.charset.StandardCharsets;
@@ -14,6 +19,8 @@ import java.util.Date;
 
 @Component
 public class JwtUtil {
+    @Autowired
+    private UserRepository userRepository;
 
     @Value("${jwt.secret}")
     private String secret;
@@ -49,9 +56,14 @@ public class JwtUtil {
         return Jwts.parser()
                 .setSigningKey(secretKey)
                 .build()
-                .parseClaimsJwt(token)
-                .getBody()
+                .parseSignedClaims(token)
+                .getPayload()
                 .getSubject();
+    }
+
+    public User getUserFromToken() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        return userRepository.findByEmail(auth.getName()).orElseThrow(() -> new RuntimeException("Invalid user"));
     }
 }
 
