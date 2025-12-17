@@ -25,41 +25,50 @@ public class UserService {
     @Autowired
     private JwtUtil jwtUtil;
 
-    public ResponseEntity<String> recruiterRegistration(User user){
-        if(userRepository.findByEmail(user.getEmail()).isPresent()){
+    public ResponseEntity<?> recruiterRegistration(User user) {
+        if (userRepository.findByEmail(user.getEmail()).isPresent()) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Email already exists, try login");
         }
         user.setRole("RECRUITER");
         user.setPassword(passwordEncoder.encode(user.getPassword()));
+
         userRepository.save(user);
-        return ResponseEntity.ok("Recruiter registered successfully");
+
+        String token = jwtUtil.generateToken(user.getEmail());
+        return ResponseEntity.status(HttpStatus.OK).body(Map.of("token", token, "message", "Recruiter registered successfully"));
     }
 
-    public ResponseEntity<String> employeeRegistration(@Valid User user) {
-        if(userRepository.findByEmail(user.getEmail()).isPresent()){
+    public ResponseEntity<?> employeeRegistration(@Valid User user) {
+        if (userRepository.findByEmail(user.getEmail()).isPresent()) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Email already exists, try login");
         }
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         user.setRole("EMPLOYEE");
+
         userRepository.save(user);
-        return ResponseEntity.ok("Employee registered successfully");
+
+        String token = jwtUtil.generateToken(user.getEmail());
+        return ResponseEntity.status(HttpStatus.OK).body(Map.of("token", token, "message", "Employee registered successfully"));
     }
 
-    public ResponseEntity<String> login(Map<String, String> credentials) {
+    public ResponseEntity<?> login(Map<String, String> credentials) {
         String email = credentials.get("email");
         String password = credentials.get("password");
 
+        if (email == null || password == null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Email and password must be provided");
+        }
         Optional<User> user = userRepository.findByEmail(email);
 
-        if(user.isEmpty()){
+        if (user.isEmpty()) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Unregistered user, please register!");
         }
 
-        if(!passwordEncoder.matches(password, user.get().getPassword())){
+        if (!passwordEncoder.matches(password, user.get().getPassword())) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("invalid password");
         }
 
         String token = jwtUtil.generateToken(email);
-        return ResponseEntity.status(HttpStatus.OK).body(token);
+        return ResponseEntity.status(HttpStatus.OK).body(Map.of("token", token, "message", "Login successful"));
     }
 }

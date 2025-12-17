@@ -17,17 +17,17 @@ public class UserController {
     private UserService userService;
 
     @PostMapping("/recruit/register")
-    public ResponseEntity<String> recruiterRegistration(@RequestBody @Valid User user){
+    public ResponseEntity<?> recruiterRegistration(@RequestBody @Valid User user) {
         return userService.recruiterRegistration(user);
     }
 
     @PostMapping("/employee/register")
-    public ResponseEntity<String> employeeRegistration(@RequestBody @Valid User user){
+    public ResponseEntity<?> employeeRegistration(@RequestBody @Valid User user) {
         return userService.employeeRegistration(user);
     }
 
     @PostMapping("/login")
-    public ResponseEntity<String> login(@RequestBody Map<String, String> credentials){
+    public ResponseEntity<?> login(@RequestBody Map<String, String> credentials) {
         return userService.login(credentials);
     }
 

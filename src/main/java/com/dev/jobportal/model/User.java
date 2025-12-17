@@ -21,12 +21,12 @@ public class User {
     private Long id;
 
     @NotBlank(message = "Username is mandatory")
-    @Column(name = "username",nullable = false)
+    @Column(name = "username", nullable = false)
     private String username;
 
     @Email(message = "Email should be valid")
     @NotBlank(message = "Email is mandatory")
-    @Column(name = "email",nullable = false, unique = true)
+    @Column(name = "email", nullable = false, unique = true)
     private String email;
 
     @NotBlank(message = "Password is mandatory")
