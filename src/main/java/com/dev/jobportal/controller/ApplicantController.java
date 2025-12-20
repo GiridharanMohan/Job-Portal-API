@@ -1,11 +1,12 @@
 package com.dev.jobportal.controller;
 
+import com.dev.jobportal.model.Applicant;
 import com.dev.jobportal.model.Job;
 import com.dev.jobportal.service.ApplicantService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -18,5 +19,10 @@ public class ApplicantController {
     @GetMapping("/jobs")
     public ResponseEntity<List<Job>> getAvailableJobs() {
         return applicantService.getAvailableJobs();
+    }
+
+    @PostMapping("/apply")
+    public ResponseEntity<String> applyForJob(@RequestParam Long jobId){
+        return applicantService.applyForJob(jobId);
     }
 }
