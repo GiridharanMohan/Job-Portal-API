@@ -7,9 +7,9 @@ import com.dev.jobportal.model.User;
 import com.dev.jobportal.repository.ApplicantRepository;
 import com.dev.jobportal.repository.ApplicationRepository;
 import com.dev.jobportal.repository.JobRepository;
+import com.dev.jobportal.util.Constants;
 import com.dev.jobportal.util.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
@@ -41,14 +41,24 @@ public class ApplicantService {
         Applicant applicant = applicantRepository.findByUserId(user.getId())
                 .orElseThrow(() -> new RuntimeException("Applicant not found for user ID: " + user.getId()));
         Job job = jobRepository.findById(jobId).orElseThrow(() -> new RuntimeException("Invalid job ID"));
+        if(hasAlreadyApplied(applicant, job)){
+            return ResponseEntity.ok("You have already applied for this job");
+        }
         if(applicant.getResume() != null){
             Application application = new Application();
             application.setApplicant(applicant);
             application.setJob(job);
             application.setAppliedOn(LocalDate.now());
+            application.setStatus(Constants.STATUS_APPLIED);
             applicationRepository.save(application);
             return ResponseEntity.ok("Applied successfully");
         }
-        return ResponseEntity.badRequest().body("Resume not found! Please upload your resume to apply for the job");
+        return ResponseEntity.ok("Resume not found! Please upload your resume to apply for the job");
+    }
+
+    private boolean hasAlreadyApplied(Applicant applicant, Job job){
+        return applicationRepository
+                .findByApplicantIdAndJobId(applicant.getId(), job.getId())
+                .isPresent();
     }
 }

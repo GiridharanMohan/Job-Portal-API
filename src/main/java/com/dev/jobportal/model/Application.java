@@ -29,4 +29,7 @@ public class Application {
 
     @Column(name = "applied_on", nullable = false)
     private LocalDate appliedOn;
+
+    @Column(name = "status", nullable = false)
+    private String status;
 }
