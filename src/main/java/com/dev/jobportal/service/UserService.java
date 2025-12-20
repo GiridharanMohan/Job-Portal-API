@@ -4,6 +4,7 @@ import com.dev.jobportal.model.Applicant;
 import com.dev.jobportal.model.User;
 import com.dev.jobportal.repository.ApplicantRepository;
 import com.dev.jobportal.repository.UserRepository;
+import com.dev.jobportal.util.Constants;
 import com.dev.jobportal.util.JwtUtil;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,7 +35,7 @@ public class UserService {
         if (userRepository.findByEmail(user.getEmail()).isPresent()) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Email already exists, try login");
         }
-        user.setRole("RECRUITER");
+        user.setRole(Constants.ROLE_RECRUITER);
         user.setPassword(passwordEncoder.encode(user.getPassword()));
 
         userRepository.save(user);
@@ -48,7 +49,7 @@ public class UserService {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Email already exists, try login");
         }
         user.setPassword(passwordEncoder.encode(user.getPassword()));
-        user.setRole("EMPLOYEE");
+        user.setRole(Constants.ROLE_EMPLOYEE);
 
         userRepository.save(user);
 
