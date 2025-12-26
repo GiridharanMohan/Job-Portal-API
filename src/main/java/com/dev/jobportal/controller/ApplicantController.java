@@ -25,4 +25,9 @@ public class ApplicantController {
     public ResponseEntity<String> applyForJob(@RequestParam Long jobId){
         return applicantService.applyForJob(jobId);
     }
+
+    @PostMapping("/upload-resume")
+    public ResponseEntity<String> uploadResume(@Valid @RequestBody Applicant applicant) {
+        return applicantService.uploadResume(applicant);
+    }
 }

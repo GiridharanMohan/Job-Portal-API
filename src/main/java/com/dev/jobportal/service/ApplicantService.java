@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class ApplicantService {
@@ -60,5 +61,16 @@ public class ApplicantService {
         return applicationRepository
                 .findByApplicantIdAndJobId(applicant.getId(), job.getId())
                 .isPresent();
+    }
+
+    public ResponseEntity<String> uploadResume(Applicant applicant) {
+        User user = jwtUtil.getUserFromToken();
+        Optional<Applicant> existingApplicant = applicantRepository.findByUserId(user.getId());
+        if(existingApplicant.isPresent()) {
+            existingApplicant.get().setResume(applicant.getResume());
+            applicantRepository.save(existingApplicant.get());
+            return ResponseEntity.ok("Resume uploaded successfully");
+        }
+        return ResponseEntity.badRequest().body("User not found");
     }
 }
