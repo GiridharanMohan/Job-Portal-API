@@ -1,11 +1,14 @@
 package com.dev.jobportal.util;
 
+import io.jsonwebtoken.Claims;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -26,8 +29,13 @@ public class JwtFilter extends OncePerRequestFilter {
         if (authHeader != null && authHeader.startsWith("Bearer")) {
             String token = authHeader.substring(7);
             if (jwtUtil.validateToken(token)) {
-                String email = jwtUtil.extractEmail(token);
-                var auth = new UsernamePasswordAuthenticationToken(email, null, List.of());
+                Claims claims = jwtUtil.extractAllClaims(token);
+                String email = claims.getSubject();
+                String role = claims.get("role", String.class);
+
+                GrantedAuthority grantedAuthority = new SimpleGrantedAuthority("ROLE_" + role);
+
+                var auth = new UsernamePasswordAuthenticationToken(email, null, List.of(grantedAuthority));
                 SecurityContextHolder.getContext().setAuthentication(auth);
             }
         }

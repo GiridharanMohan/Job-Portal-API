@@ -40,7 +40,7 @@ public class UserService {
 
         userRepository.save(user);
 
-        String token = jwtUtil.generateToken(user.getEmail());
+        String token = jwtUtil.generateToken(user);
         return ResponseEntity.status(HttpStatus.OK).body(Map.of("token", token, "message", "Recruiter registered successfully"));
     }
 
@@ -55,7 +55,7 @@ public class UserService {
 
         saveApplicantProfile(user);
 
-        String token = jwtUtil.generateToken(user.getEmail());
+        String token = jwtUtil.generateToken(user);
         return ResponseEntity.status(HttpStatus.OK).body(Map.of("token", token, "message", "Employee registered successfully"));
     }
 
@@ -76,7 +76,7 @@ public class UserService {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("invalid password");
         }
 
-        String token = jwtUtil.generateToken(email);
+        String token = jwtUtil.generateToken(user.get());
         return ResponseEntity.status(HttpStatus.OK).body(Map.of("token", token, "message", "Login successful"));
     }
 

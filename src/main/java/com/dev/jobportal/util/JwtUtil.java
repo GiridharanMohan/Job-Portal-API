@@ -2,6 +2,7 @@ package com.dev.jobportal.util;
 
 import com.dev.jobportal.model.User;
 import com.dev.jobportal.repository.UserRepository;
+import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -34,31 +35,31 @@ public class JwtUtil {
         this.secretKey = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
     }
 
-    public String generateToken(String email) {
+    public String generateToken(User user) {
         return Jwts.builder()
                 .setIssuedAt(new Date(System.currentTimeMillis()))
+                .claim("role", user.getRole())
                 .setExpiration(new Date(System.currentTimeMillis() + expiration))
-                .setSubject(email)
+                .setSubject(user.getEmail())
                 .signWith(secretKey, SignatureAlgorithm.HS256)
                 .compact();
     }
 
     public boolean validateToken(String token) {
         try {
-            extractEmail(token);
+            extractAllClaims(token).getSubject();
             return true;
         } catch (JwtException e) {
             return false;
         }
     }
 
-    public String extractEmail(String token) {
+    public Claims extractAllClaims(String token) {
         return Jwts.parser()
                 .setSigningKey(secretKey)
                 .build()
                 .parseSignedClaims(token)
-                .getPayload()
-                .getSubject();
+                .getPayload();
     }
 
     public User getUserFromToken() {

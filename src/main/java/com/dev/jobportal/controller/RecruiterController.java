@@ -1,6 +1,5 @@
 package com.dev.jobportal.controller;
 
-import com.dev.jobportal.model.Applicant;
 import com.dev.jobportal.model.Application;
 import com.dev.jobportal.model.Job;
 import com.dev.jobportal.service.RecruiterService;
