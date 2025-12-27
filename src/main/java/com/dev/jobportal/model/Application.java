@@ -6,6 +6,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDate;
+
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
@@ -24,4 +26,10 @@ public class Application {
     @ManyToOne
     @JoinColumn(name = "job_id", nullable = false)
     private Job job;
+
+    @Column(name = "applied_on", nullable = false)
+    private LocalDate appliedOn;
+
+    @Column(name = "status", nullable = false)
+    private String status;
 }
