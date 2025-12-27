@@ -1,11 +1,13 @@
 package com.dev.jobportal.service;
 
-import com.dev.jobportal.model.Application;
 import com.dev.jobportal.model.Job;
 import com.dev.jobportal.model.User;
+import com.dev.jobportal.model.dto.ApplicationDto;
+import com.dev.jobportal.model.dto.JobResponseDto;
 import com.dev.jobportal.repository.ApplicationRepository;
 import com.dev.jobportal.repository.JobRepository;
 import com.dev.jobportal.util.JwtUtil;
+import com.dev.jobportal.util.Util;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -28,8 +30,11 @@ public class RecruiterService {
     @Autowired
     private JwtUtil jwtUtil;
 
+    @Autowired
+    private Util util;
+
     @PreAuthorize("hasRole('RECRUITER')")
-    public ResponseEntity<?> postJob(Job job) {
+    public ResponseEntity<String> postJob(Job job) {
         User user = jwtUtil.getUserFromToken();
         job.setPostedBy(user);
         job.setPostedOn(LocalDateTime.now());
@@ -38,18 +43,20 @@ public class RecruiterService {
     }
 
     @PreAuthorize("hasRole('RECRUITER')")
-    public ResponseEntity<List<Job>> getPostedJobs() {
+    public ResponseEntity<List<JobResponseDto>> getPostedJobs() {
         User user = jwtUtil.getUserFromToken();
-        List<Job> jobsPostedByUser = jobRepository.findByPostedBy(user);
+        List<JobResponseDto> jobsPostedByUser = jobRepository.findByPostedBy(user).stream()
+                .map(job -> util.toJobResponseDto(job)).toList();
         return ResponseEntity.status(HttpStatus.OK).body(jobsPostedByUser);
     }
 
     @PreAuthorize("hasRole('RECRUITER')")
-    public ResponseEntity<Job> getPostedJobById(Long id) {
+    public ResponseEntity<JobResponseDto> getPostedJobById(Long id) {
         User user = jwtUtil.getUserFromToken();
         Optional<Job> job = jobRepository.findById(id);
         if (job.isPresent() && job.get().getPostedBy().getEmail().equals(user.getEmail())) {
-            return ResponseEntity.ok(job.get());
+            JobResponseDto jobResponse = util.toJobResponseDto(job.get());
+            return ResponseEntity.ok(jobResponse);
         }
         return ResponseEntity.badRequest().build();
     }
@@ -66,11 +73,12 @@ public class RecruiterService {
     }
 
     @PreAuthorize("hasRole('RECRUITER')")
-    public ResponseEntity<List<Application>> getAllApplicationsForJobId(Long id, String jobTitle) {
+    public ResponseEntity<List<ApplicationDto>> getAllApplicationsForJobId(Long id, String jobTitle) {
         User user = jwtUtil.getUserFromToken();
         Optional<Job> job = jobRepository.findById(id);
         if (job.isPresent() && job.get().getPostedBy().getEmail().equals(user.getEmail()) && job.get().getJobTitle().equals(jobTitle)) {
-            List<Application> listOfApplications = applicationRepository.findAllByJob(job.get());
+            List<ApplicationDto> listOfApplications = applicationRepository.findAllByJob(job.get())
+                    .stream().map(application -> util.toApplicationDto(application)).toList();
             return ResponseEntity.ok(listOfApplications);
         }
         return ResponseEntity.badRequest().build();

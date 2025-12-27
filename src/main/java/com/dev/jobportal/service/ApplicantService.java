@@ -4,11 +4,13 @@ import com.dev.jobportal.model.Applicant;
 import com.dev.jobportal.model.Application;
 import com.dev.jobportal.model.Job;
 import com.dev.jobportal.model.User;
+import com.dev.jobportal.model.dto.JobResponseDto;
 import com.dev.jobportal.repository.ApplicantRepository;
 import com.dev.jobportal.repository.ApplicationRepository;
 import com.dev.jobportal.repository.JobRepository;
 import com.dev.jobportal.util.Constants;
 import com.dev.jobportal.util.JwtUtil;
+import com.dev.jobportal.util.Util;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -32,8 +34,12 @@ public class ApplicantService {
     @Autowired
     private JwtUtil jwtUtil;
 
-    public ResponseEntity<List<Job>> getAvailableJobs() {
-        List<Job> allAvailableJobs = jobRepository.findAll();
+    @Autowired
+    private Util util;
+
+    public ResponseEntity<List<JobResponseDto>> getAvailableJobs() {
+        List<JobResponseDto> allAvailableJobs = jobRepository.findAll().stream()
+                .map(job -> util.toJobResponseDto(job)).toList();
         return ResponseEntity.ok(allAvailableJobs);
     }
 

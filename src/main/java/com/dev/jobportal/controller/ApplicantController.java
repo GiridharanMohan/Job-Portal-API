@@ -2,6 +2,7 @@ package com.dev.jobportal.controller;
 
 import com.dev.jobportal.model.Applicant;
 import com.dev.jobportal.model.Job;
+import com.dev.jobportal.model.dto.JobResponseDto;
 import com.dev.jobportal.service.ApplicantService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,7 +18,7 @@ public class ApplicantController {
     private ApplicantService applicantService;
 
     @GetMapping("/jobs")
-    public ResponseEntity<List<Job>> getAvailableJobs() {
+    public ResponseEntity<List<JobResponseDto>> getAvailableJobs() {
         return applicantService.getAvailableJobs();
     }
 
