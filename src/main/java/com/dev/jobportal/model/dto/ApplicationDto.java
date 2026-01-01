@@ -15,7 +15,8 @@ public class ApplicationDto {
     private String jobTitle;
     private UUID applicantId;
     private String applicantName;
-    private String resume;
+    private String resumeFileName;
+    private byte[] resume;
     private String applicationStatus;
     private LocalDate appliedOn;
 }
