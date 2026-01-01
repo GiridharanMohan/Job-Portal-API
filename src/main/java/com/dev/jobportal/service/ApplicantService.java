@@ -11,14 +11,20 @@ import com.dev.jobportal.repository.JobRepository;
 import com.dev.jobportal.util.Constants;
 import com.dev.jobportal.util.JwtUtil;
 import com.dev.jobportal.util.Util;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
+@Slf4j
 @Service
 public class ApplicantService {
 
@@ -48,10 +54,10 @@ public class ApplicantService {
         Applicant applicant = applicantRepository.findByUserId(user.getId())
                 .orElseThrow(() -> new RuntimeException("Applicant not found for user ID: " + user.getId()));
         Job job = jobRepository.findById(jobId).orElseThrow(() -> new RuntimeException("Invalid job ID"));
-        if(hasAlreadyApplied(applicant, job)){
+        if (hasAlreadyApplied(applicant, job)) {
             return ResponseEntity.ok("You have already applied for this job");
         }
-        if(applicant.getResume() != null){
+        if (applicant.getResume() != null) {
             Application application = new Application();
             application.setApplicant(applicant);
             application.setJob(job);
@@ -63,20 +69,29 @@ public class ApplicantService {
         return ResponseEntity.ok("Resume not found! Please upload your resume to apply for the job");
     }
 
-    private boolean hasAlreadyApplied(Applicant applicant, Job job){
+    private boolean hasAlreadyApplied(Applicant applicant, Job job) {
         return applicationRepository
                 .findByApplicantIdAndJobId(applicant.getId(), job.getId())
                 .isPresent();
     }
 
-    public ResponseEntity<String> uploadResume(Applicant applicant) {
+    public ResponseEntity<String> uploadResume(MultipartFile resumeFile) {
+        log.info("Beginning of uploadResume");
         User user = jwtUtil.getUserFromToken();
-        Optional<Applicant> existingApplicant = applicantRepository.findByUserId(user.getId());
-        if(existingApplicant.isPresent()) {
-            existingApplicant.get().setResume(applicant.getResume());
-            applicantRepository.save(existingApplicant.get());
-            return ResponseEntity.ok("Resume uploaded successfully");
+        Applicant existingApplicant = applicantRepository.findByUserId(user.getId())
+                .orElseThrow(() -> new UsernameNotFoundException("User with ID: "+user.getId()+" not found"));
+        try {
+            if (!resumeFile.isEmpty()) {
+                log.info("setting resume to their respective fields");
+                existingApplicant.setFileName(resumeFile.getOriginalFilename());
+                existingApplicant.setFileType(resumeFile.getContentType());
+                existingApplicant.setResume(resumeFile.getBytes());
+                applicantRepository.save(existingApplicant);
+                return ResponseEntity.ok("Resume uploaded successfully");
+            }
+        } catch (IOException e){
+            return ResponseEntity.unprocessableContent().body("Error in getting resume");
         }
-        return ResponseEntity.badRequest().body("User not found");
+        return ResponseEntity.badRequest().body("Resume should not be empty");
     }
 }

@@ -29,6 +29,7 @@ public class Util {
         applicationDto.setJobTitle(application.getJob().getJobTitle());
         applicationDto.setApplicantId(application.getApplicant().getId());
         applicationDto.setApplicantName(application.getApplicant().getUser().getUsername());
+        applicationDto.setResumeFileName(application.getApplicant().getFileName());
         applicationDto.setResume(application.getApplicant().getResume());
         applicationDto.setApplicationStatus(application.getStatus());
         applicationDto.setAppliedOn(application.getAppliedOn());

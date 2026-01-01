@@ -19,8 +19,14 @@ public class Applicant {
     @Column(name = "id")
     private UUID id;
 
-    //temp field for resume upload
-    private String resume;
+    @Column(name = "file_name")
+    private String fileName;
+
+    @Column(name = "file_type")
+    private String fileType;
+
+    @Column(name = "resume")
+    private byte[] resume;
 
     @OneToOne
     @JoinColumn(name = "user_id")
