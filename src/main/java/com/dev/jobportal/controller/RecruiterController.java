@@ -42,4 +42,9 @@ public class RecruiterController {
     public ResponseEntity<List<ApplicationDto>> getAllApplicationsForJobId(@RequestParam Long id, @RequestParam String jobTitle) {
         return recruiterService.getAllApplicationsForJobId(id, jobTitle);
     }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<byte[]> getResumeByApplicationNumber(@PathVariable Long id){
+        return recruiterService.getResume(id);
+    }
 }

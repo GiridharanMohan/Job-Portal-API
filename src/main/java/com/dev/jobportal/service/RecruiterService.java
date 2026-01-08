@@ -10,6 +10,7 @@ import com.dev.jobportal.util.JwtUtil;
 import com.dev.jobportal.util.Util;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
@@ -82,5 +83,10 @@ public class RecruiterService {
             return ResponseEntity.ok(listOfApplications);
         }
         return ResponseEntity.badRequest().build();
+    }
+
+    @PreAuthorize("hasRole('RECRUITER')")
+    public ResponseEntity<byte[]> getResume(Long id){
+        return ResponseEntity.ok().contentType(MediaType.valueOf("application/pdf")).body(applicationRepository.findById(id).orElseThrow(() -> new RuntimeException("No data found")).getApplicant().getResume());
     }
 }
