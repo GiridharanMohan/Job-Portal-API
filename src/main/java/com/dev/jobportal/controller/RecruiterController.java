@@ -33,9 +33,9 @@ public class RecruiterController {
         return recruiterService.getPostedJobById(id);
     }
 
-    @DeleteMapping("/delete-job/{id}")
-    public ResponseEntity<String> deleteJobById(@PathVariable Long id) {
-        return recruiterService.deleteJobById(id);
+    @PutMapping("/close-job/{id}")
+    public ResponseEntity<String> closeHiring(@PathVariable Long id) {
+        return recruiterService.closeHiring(id);
     }
 
     @GetMapping("/allApplicants")
@@ -44,7 +44,7 @@ public class RecruiterController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<byte[]> getResumeByApplicationNumber(@PathVariable Long id){
-        return recruiterService.getResume(id);
+    public ResponseEntity<byte[]> getResumeByApplicationNumber(@PathVariable("id") Long applicationId){
+        return recruiterService.getResume(applicationId);
     }
 }
