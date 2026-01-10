@@ -5,8 +5,6 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.UUID;
-
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
@@ -15,9 +13,9 @@ import java.util.UUID;
 public class Applicant {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
-    private UUID id;
+    private Long id;
 
     @Column(name = "file_name")
     private String fileName;

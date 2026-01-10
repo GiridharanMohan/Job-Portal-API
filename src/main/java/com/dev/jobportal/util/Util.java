@@ -2,7 +2,7 @@ package com.dev.jobportal.util;
 
 import com.dev.jobportal.model.Application;
 import com.dev.jobportal.model.Job;
-import com.dev.jobportal.model.dto.ApplicationDto;
+import com.dev.jobportal.model.dto.ApplicationResponseDto;
 import com.dev.jobportal.model.dto.JobResponseDto;
 import org.springframework.stereotype.Component;
 
@@ -19,20 +19,20 @@ public class Util {
         jobResponseDto.setExperienceRequired(job.getExperienceRequired());
         jobResponseDto.setPostedOn(job.getPostedOn());
         jobResponseDto.setPostedBy(job.getPostedBy().getUsername());
+        jobResponseDto.setJobStatus(job.getJobStatus());
         return jobResponseDto;
     }
 
-    public ApplicationDto toApplicationDto(Application application){
-        ApplicationDto applicationDto = new ApplicationDto();
-        applicationDto.setApplicationId(application.getId());
-        applicationDto.setJobId(application.getJob().getId());
-        applicationDto.setJobTitle(application.getJob().getJobTitle());
-        applicationDto.setApplicantId(application.getApplicant().getId());
-        applicationDto.setApplicantName(application.getApplicant().getUser().getUsername());
-        applicationDto.setResumeFileName(application.getApplicant().getFileName());
-        applicationDto.setResume(application.getApplicant().getResume());
-        applicationDto.setApplicationStatus(application.getStatus());
-        applicationDto.setAppliedOn(application.getAppliedOn());
-        return applicationDto;
+    public ApplicationResponseDto toApplicationResponseDto(Application application){
+        ApplicationResponseDto applicationResponseDto = new ApplicationResponseDto();
+        applicationResponseDto.setApplicationId(application.getId());
+        applicationResponseDto.setJobId(application.getJob().getId());
+        applicationResponseDto.setJobTitle(application.getJob().getJobTitle());
+        applicationResponseDto.setApplicantId(application.getApplicant().getId());
+        applicationResponseDto.setApplicantName(application.getApplicant().getUser().getUsername());
+        applicationResponseDto.setResumeFileName(application.getApplicant().getFileName());
+        applicationResponseDto.setApplicationStatus(application.getStatus());
+        applicationResponseDto.setAppliedOn(application.getAppliedOn());
+        return applicationResponseDto;
     }
 }

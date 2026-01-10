@@ -1,6 +1,6 @@
 package com.dev.jobportal.config;
 
-import com.dev.jobportal.util.Constants;
+import com.dev.jobportal.util.Constant;
 import com.dev.jobportal.util.JwtFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -30,7 +30,7 @@ public class SecurityConfig {
                                 "/swagger-ui/**",
                                 "/v3/api-docs/**"
                         ).permitAll()
-                        .requestMatchers("/recruiter/**").hasRole(Constants.ROLE_RECRUITER)
+                        .requestMatchers("/recruiter/**").hasRole(Constant.ROLE_RECRUITER)
                         .anyRequest().authenticated()
                 )
                 .httpBasic(Customizer.withDefaults())

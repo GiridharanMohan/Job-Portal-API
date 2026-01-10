@@ -1,7 +1,7 @@
 package com.dev.jobportal.controller;
 
 import com.dev.jobportal.model.Job;
-import com.dev.jobportal.model.dto.ApplicationDto;
+import com.dev.jobportal.model.dto.ApplicationResponseDto;
 import com.dev.jobportal.model.dto.JobResponseDto;
 import com.dev.jobportal.service.RecruiterService;
 import jakarta.validation.Valid;
@@ -33,13 +33,18 @@ public class RecruiterController {
         return recruiterService.getPostedJobById(id);
     }
 
-    @DeleteMapping("/delete-job/{id}")
-    public ResponseEntity<String> deleteJobById(@PathVariable Long id) {
-        return recruiterService.deleteJobById(id);
+    @PutMapping("/close-job/{id}")
+    public ResponseEntity<String> closeHiring(@PathVariable Long id) {
+        return recruiterService.closeHiring(id);
     }
 
     @GetMapping("/allApplicants")
-    public ResponseEntity<List<ApplicationDto>> getAllApplicationsForJobId(@RequestParam Long id, @RequestParam String jobTitle) {
+    public ResponseEntity<List<ApplicationResponseDto>> getAllApplicationsForJobId(@RequestParam Long id, @RequestParam String jobTitle) {
         return recruiterService.getAllApplicationsForJobId(id, jobTitle);
+    }
+
+    @GetMapping("/{id}/resume")
+    public ResponseEntity<byte[]> getResumeByApplicationNumber(@PathVariable("id") Long applicationId){
+        return recruiterService.getResume(applicationId);
     }
 }

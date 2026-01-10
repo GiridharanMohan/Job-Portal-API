@@ -45,4 +45,7 @@ public class Job {
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
     private User postedBy;
+
+    @Column(name = "job_status", nullable = false)
+    private String jobStatus;
 }

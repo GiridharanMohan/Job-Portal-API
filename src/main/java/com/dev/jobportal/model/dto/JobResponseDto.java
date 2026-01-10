@@ -16,4 +16,5 @@ public class JobResponseDto {
     private String experienceRequired;
     private LocalDateTime postedOn;
     private String postedBy;
+    private String jobStatus;
 }

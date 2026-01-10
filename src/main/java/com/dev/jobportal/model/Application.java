@@ -6,7 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -28,7 +28,7 @@ public class Application {
     private Job job;
 
     @Column(name = "applied_on", nullable = false)
-    private LocalDate appliedOn;
+    private LocalDateTime appliedOn;
 
     @Column(name = "status", nullable = false)
     private String status;

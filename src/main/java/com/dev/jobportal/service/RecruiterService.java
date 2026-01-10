@@ -1,15 +1,18 @@
 package com.dev.jobportal.service;
 
+import com.dev.jobportal.model.Application;
 import com.dev.jobportal.model.Job;
 import com.dev.jobportal.model.User;
-import com.dev.jobportal.model.dto.ApplicationDto;
+import com.dev.jobportal.model.dto.ApplicationResponseDto;
 import com.dev.jobportal.model.dto.JobResponseDto;
 import com.dev.jobportal.repository.ApplicationRepository;
 import com.dev.jobportal.repository.JobRepository;
+import com.dev.jobportal.util.Constant;
 import com.dev.jobportal.util.JwtUtil;
 import com.dev.jobportal.util.Util;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
@@ -38,6 +41,7 @@ public class RecruiterService {
         User user = jwtUtil.getUserFromToken();
         job.setPostedBy(user);
         job.setPostedOn(LocalDateTime.now());
+        job.setJobStatus(Constant.STATUS_OPEN);
         jobRepository.save(job);
         return ResponseEntity.ok("Job posted successfully");
     }
@@ -62,25 +66,37 @@ public class RecruiterService {
     }
 
     @PreAuthorize("hasRole('RECRUITER')")
-    public ResponseEntity<String> deleteJobById(Long id) {
+    public ResponseEntity<String> closeHiring(Long id) {
         User user = jwtUtil.getUserFromToken();
         Optional<Job> job = jobRepository.findById(id);
         if (job.isPresent() && job.get().getPostedBy().getEmail().equals(user.getEmail())) {
-            jobRepository.deleteById(id);
-            return ResponseEntity.status(HttpStatus.OK).body("Job post has been deleted successfully");
+            Job newJob = job.get();
+            newJob.setJobStatus(Constant.STATUS_CLOSED);
+            jobRepository.save(newJob);
+            return ResponseEntity.status(HttpStatus.OK).body("Job has been closed");
         }
         return ResponseEntity.badRequest().body("Invalid Job ID");
     }
 
     @PreAuthorize("hasRole('RECRUITER')")
-    public ResponseEntity<List<ApplicationDto>> getAllApplicationsForJobId(Long id, String jobTitle) {
+    public ResponseEntity<List<ApplicationResponseDto>> getAllApplicationsForJobId(Long id, String jobTitle) {
         User user = jwtUtil.getUserFromToken();
         Optional<Job> job = jobRepository.findById(id);
         if (job.isPresent() && job.get().getPostedBy().getEmail().equals(user.getEmail()) && job.get().getJobTitle().equals(jobTitle)) {
-            List<ApplicationDto> listOfApplications = applicationRepository.findAllByJob(job.get())
-                    .stream().map(application -> util.toApplicationDto(application)).toList();
+            List<ApplicationResponseDto> listOfApplications = applicationRepository.findAllByJob(job.get())
+                    .stream().map(application -> util.toApplicationResponseDto(application)).toList();
             return ResponseEntity.ok(listOfApplications);
         }
         return ResponseEntity.badRequest().build();
+    }
+
+    @PreAuthorize("hasRole('RECRUITER')")
+    public ResponseEntity<byte[]> getResume(Long applicationId){
+        Application application = applicationRepository.findById(applicationId)
+                .orElseThrow(() -> new RuntimeException("No application found"));
+        byte[] resume = application.getApplicant().getResume();
+        return ResponseEntity.ok()
+                .contentType(MediaType.valueOf(application.getApplicant().getFileType()))
+                .body(resume);
     }
 }
