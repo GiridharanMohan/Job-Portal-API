@@ -2,7 +2,7 @@ package com.dev.jobportal.service;
 
 import com.dev.jobportal.model.Job;
 import com.dev.jobportal.model.User;
-import com.dev.jobportal.model.dto.ApplicationDto;
+import com.dev.jobportal.model.dto.ApplicationResponseDto;
 import com.dev.jobportal.model.dto.JobResponseDto;
 import com.dev.jobportal.repository.ApplicationRepository;
 import com.dev.jobportal.repository.JobRepository;
@@ -78,12 +78,12 @@ public class RecruiterService {
     }
 
     @PreAuthorize("hasRole('RECRUITER')")
-    public ResponseEntity<List<ApplicationDto>> getAllApplicationsForJobId(Long id, String jobTitle) {
+    public ResponseEntity<List<ApplicationResponseDto>> getAllApplicationsForJobId(Long id, String jobTitle) {
         User user = jwtUtil.getUserFromToken();
         Optional<Job> job = jobRepository.findById(id);
         if (job.isPresent() && job.get().getPostedBy().getEmail().equals(user.getEmail()) && job.get().getJobTitle().equals(jobTitle)) {
-            List<ApplicationDto> listOfApplications = applicationRepository.findAllByJob(job.get())
-                    .stream().map(application -> util.toApplicationDto(application)).toList();
+            List<ApplicationResponseDto> listOfApplications = applicationRepository.findAllByJob(job.get())
+                    .stream().map(application -> util.toApplicationResponseDto(application)).toList();
             return ResponseEntity.ok(listOfApplications);
         }
         return ResponseEntity.badRequest().build();
@@ -91,9 +91,9 @@ public class RecruiterService {
 
     @PreAuthorize("hasRole('RECRUITER')")
     public ResponseEntity<byte[]> getResume(Long applicationId){
-        ApplicationDto applicationDto = util.toApplicationDto(applicationRepository.findById(applicationId)
+        ApplicationResponseDto applicationResponseDto = util.toApplicationResponseDto(applicationRepository.findById(applicationId)
                 .orElseThrow(() -> new RuntimeException("No data found")));
-        byte[] resume = applicationDto.getResume();
+        byte[] resume = applicationResponseDto.getResume();
         return ResponseEntity.ok()
                 .contentType(MediaType.valueOf("application/pdf"))
                 .body(resume);

@@ -1,7 +1,7 @@
 package com.dev.jobportal.controller;
 
 import com.dev.jobportal.model.Job;
-import com.dev.jobportal.model.dto.ApplicationDto;
+import com.dev.jobportal.model.dto.ApplicationResponseDto;
 import com.dev.jobportal.model.dto.JobResponseDto;
 import com.dev.jobportal.service.RecruiterService;
 import jakarta.validation.Valid;
@@ -39,7 +39,7 @@ public class RecruiterController {
     }
 
     @GetMapping("/allApplicants")
-    public ResponseEntity<List<ApplicationDto>> getAllApplicationsForJobId(@RequestParam Long id, @RequestParam String jobTitle) {
+    public ResponseEntity<List<ApplicationResponseDto>> getAllApplicationsForJobId(@RequestParam Long id, @RequestParam String jobTitle) {
         return recruiterService.getAllApplicationsForJobId(id, jobTitle);
     }
 

@@ -7,7 +7,7 @@ import java.time.LocalDate;
 
 @Data
 @NoArgsConstructor
-public class ApplicationDto {
+public class ApplicationResponseDto {
 
     private Long applicationId;
     private Long jobId;
@@ -15,7 +15,6 @@ public class ApplicationDto {
     private Long applicantId;
     private String applicantName;
     private String resumeFileName;
-    private byte[] resume;
     private String applicationStatus;
     private LocalDate appliedOn;
 }
