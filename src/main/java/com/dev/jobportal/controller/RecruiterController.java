@@ -43,7 +43,7 @@ public class RecruiterController {
         return recruiterService.getAllApplicationsForJobId(id, jobTitle);
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/{id}/resume")
     public ResponseEntity<byte[]> getResumeByApplicationNumber(@PathVariable("id") Long applicationId){
         return recruiterService.getResume(applicationId);
     }
