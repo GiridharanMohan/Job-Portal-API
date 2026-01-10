@@ -19,7 +19,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Slf4j
@@ -64,7 +64,7 @@ public class ApplicantService {
             Application application = new Application();
             application.setApplicant(applicant);
             application.setJob(job);
-            application.setAppliedOn(LocalDate.now());
+            application.setAppliedOn(LocalDateTime.now());
             application.setStatus(Constant.STATUS_APPLIED);
             applicationRepository.save(application);
             return ResponseEntity.ok("Applied successfully");

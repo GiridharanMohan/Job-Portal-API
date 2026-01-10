@@ -3,7 +3,7 @@ package com.dev.jobportal.model.dto;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Data
 @NoArgsConstructor
@@ -16,5 +16,5 @@ public class ApplicationResponseDto {
     private String applicantName;
     private String resumeFileName;
     private String applicationStatus;
-    private LocalDate appliedOn;
+    private LocalDateTime appliedOn;
 }
