@@ -7,11 +7,10 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 
 @Repository
 public interface ApplicationRepository extends JpaRepository<Application, Long> {
     List<Application> findAllByJob(Job job);
 
-    Optional<Application> findByApplicantIdAndJobId(UUID applicationId, Long jobId);
+    Optional<Application> findByApplicantIdAndJobId(Long applicationId, Long jobId);
 }
