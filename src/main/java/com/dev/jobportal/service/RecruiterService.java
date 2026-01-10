@@ -1,5 +1,6 @@
 package com.dev.jobportal.service;
 
+import com.dev.jobportal.model.Application;
 import com.dev.jobportal.model.Job;
 import com.dev.jobportal.model.User;
 import com.dev.jobportal.model.dto.ApplicationResponseDto;
@@ -91,11 +92,11 @@ public class RecruiterService {
 
     @PreAuthorize("hasRole('RECRUITER')")
     public ResponseEntity<byte[]> getResume(Long applicationId){
-        ApplicationResponseDto applicationResponseDto = util.toApplicationResponseDto(applicationRepository.findById(applicationId)
-                .orElseThrow(() -> new RuntimeException("No data found")));
-        byte[] resume = applicationResponseDto.getResume();
+        Application application = applicationRepository.findById(applicationId)
+                .orElseThrow(() -> new RuntimeException("No application found"));
+        byte[] resume = application.getApplicant().getResume();
         return ResponseEntity.ok()
-                .contentType(MediaType.valueOf("application/pdf"))
+                .contentType(MediaType.valueOf(application.getApplicant().getFileType()))
                 .body(resume);
     }
 }
