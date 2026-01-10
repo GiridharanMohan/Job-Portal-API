@@ -19,6 +19,7 @@ public class Util {
         jobResponseDto.setExperienceRequired(job.getExperienceRequired());
         jobResponseDto.setPostedOn(job.getPostedOn());
         jobResponseDto.setPostedBy(job.getPostedBy().getUsername());
+        jobResponseDto.setJobStatus(job.getJobStatus());
         return jobResponseDto;
     }
 

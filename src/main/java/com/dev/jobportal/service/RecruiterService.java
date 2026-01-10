@@ -6,6 +6,7 @@ import com.dev.jobportal.model.dto.ApplicationDto;
 import com.dev.jobportal.model.dto.JobResponseDto;
 import com.dev.jobportal.repository.ApplicationRepository;
 import com.dev.jobportal.repository.JobRepository;
+import com.dev.jobportal.util.Constant;
 import com.dev.jobportal.util.JwtUtil;
 import com.dev.jobportal.util.Util;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,6 +40,7 @@ public class RecruiterService {
         User user = jwtUtil.getUserFromToken();
         job.setPostedBy(user);
         job.setPostedOn(LocalDateTime.now());
+        job.setJobStatus(Constant.STATUS_OPEN);
         jobRepository.save(job);
         return ResponseEntity.ok("Job posted successfully");
     }
@@ -63,12 +65,14 @@ public class RecruiterService {
     }
 
     @PreAuthorize("hasRole('RECRUITER')")
-    public ResponseEntity<String> deleteJobById(Long id) {
+    public ResponseEntity<String> closeHiring(Long id) {
         User user = jwtUtil.getUserFromToken();
         Optional<Job> job = jobRepository.findById(id);
         if (job.isPresent() && job.get().getPostedBy().getEmail().equals(user.getEmail())) {
-            jobRepository.deleteById(id);
-            return ResponseEntity.status(HttpStatus.OK).body("Job post has been deleted successfully");
+            Job newJob = job.get();
+            newJob.setJobStatus(Constant.STATUS_CLOSED);
+            jobRepository.save(newJob);
+            return ResponseEntity.status(HttpStatus.OK).body("Job has been closed");
         }
         return ResponseEntity.badRequest().body("Invalid Job ID");
     }
@@ -86,7 +90,12 @@ public class RecruiterService {
     }
 
     @PreAuthorize("hasRole('RECRUITER')")
-    public ResponseEntity<byte[]> getResume(Long id){
-        return ResponseEntity.ok().contentType(MediaType.valueOf("application/pdf")).body(applicationRepository.findById(id).orElseThrow(() -> new RuntimeException("No data found")).getApplicant().getResume());
+    public ResponseEntity<byte[]> getResume(Long applicationId){
+        ApplicationDto applicationDto = util.toApplicationDto(applicationRepository.findById(applicationId)
+                .orElseThrow(() -> new RuntimeException("No data found")));
+        byte[] resume = applicationDto.getResume();
+        return ResponseEntity.ok()
+                .contentType(MediaType.valueOf("application/pdf"))
+                .body(resume);
     }
 }
