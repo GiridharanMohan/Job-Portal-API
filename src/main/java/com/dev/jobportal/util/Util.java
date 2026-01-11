@@ -20,6 +20,7 @@ public class Util {
         jobResponseDto.setPostedOn(job.getPostedOn());
         jobResponseDto.setPostedBy(job.getPostedBy().getUsername());
         jobResponseDto.setJobStatus(job.getJobStatus());
+        jobResponseDto.setUpdatedOn(job.getUpdateOn());
         return jobResponseDto;
     }
 

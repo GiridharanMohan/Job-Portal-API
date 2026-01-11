@@ -69,9 +69,10 @@ public class RecruiterService {
     public ResponseEntity<String> closeHiring(Long id) {
         User user = jwtUtil.getUserFromToken();
         Optional<Job> job = jobRepository.findById(id);
-        if (job.isPresent() && job.get().getPostedBy().getEmail().equals(user.getEmail())) {
+        if (job.isPresent() && job.get().getPostedBy().equals(user)) {
             Job newJob = job.get();
             newJob.setJobStatus(Constant.STATUS_CLOSED);
+            newJob.setUpdateOn(LocalDateTime.now());
             jobRepository.save(newJob);
             return ResponseEntity.status(HttpStatus.OK).body("Job has been closed");
         }
