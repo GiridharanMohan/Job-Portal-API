@@ -13,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.Optional;
 
@@ -35,12 +36,9 @@ public class UserService {
         if (userRepository.findByEmail(user.getEmail()).isPresent()) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Email already exists, try login");
         }
-        user.setRole(Constant.ROLE_RECRUITER);
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
 
-        userRepository.save(user);
-
-        String token = jwtUtil.generateToken(user);
+        User savedUser = saveUserDetails(user, Constant.ROLE_RECRUITER);
+        String token = jwtUtil.generateToken(savedUser);
         return ResponseEntity.status(HttpStatus.OK).body(Map.of("token", token, "message", "Recruiter registered successfully"));
     }
 
@@ -48,14 +46,10 @@ public class UserService {
         if (userRepository.findByEmail(user.getEmail()).isPresent()) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Email already exists, try login");
         }
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
-        user.setRole(Constant.ROLE_EMPLOYEE);
 
-        userRepository.save(user);
-
-        saveApplicantProfile(user);
-
-        String token = jwtUtil.generateToken(user);
+        User savedUser = saveUserDetails(user, Constant.ROLE_EMPLOYEE);
+        saveApplicantProfile(savedUser);
+        String token = jwtUtil.generateToken(savedUser);
         return ResponseEntity.status(HttpStatus.OK).body(Map.of("token", token, "message", "Employee registered successfully"));
     }
 
@@ -80,9 +74,17 @@ public class UserService {
         return ResponseEntity.status(HttpStatus.OK).body(Map.of("token", token, "message", "Login successful"));
     }
 
+    private User saveUserDetails(User user, String role){
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        user.setRole(role);
+        user.setCreatedOn(LocalDateTime.now());
+        return userRepository.save(user);
+    }
+
     private void saveApplicantProfile(User user){
         Applicant applicant = new Applicant();
         applicant.setUser(user);
+        applicant.setCreatedOn(LocalDateTime.now());
         applicantRepository.save(applicant);
     }
 }
