@@ -83,6 +83,7 @@ public class ApplicantService {
                 existingApplicant.setFileName(resumeFile.getOriginalFilename());
                 existingApplicant.setFileType(resumeFile.getContentType());
                 existingApplicant.setResume(resumeFile.getBytes());
+                existingApplicant.setUpdatedOn(LocalDateTime.now());
                 applicantRepository.save(existingApplicant);
                 return ResponseEntity.ok("Resume uploaded successfully");
             }
