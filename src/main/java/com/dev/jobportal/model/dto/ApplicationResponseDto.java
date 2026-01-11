@@ -17,4 +17,5 @@ public class ApplicationResponseDto {
     private String resumeFileName;
     private String applicationStatus;
     private LocalDateTime appliedOn;
+    private LocalDateTime updatedOn;
 }

@@ -33,6 +33,7 @@ public class Util {
         applicationResponseDto.setResumeFileName(application.getApplicant().getFileName());
         applicationResponseDto.setApplicationStatus(application.getStatus());
         applicationResponseDto.setAppliedOn(application.getAppliedOn());
+        applicationResponseDto.setUpdatedOn(application.getUpdatedOn());
         return applicationResponseDto;
     }
 }
