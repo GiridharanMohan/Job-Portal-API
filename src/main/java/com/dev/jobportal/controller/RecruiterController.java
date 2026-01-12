@@ -47,4 +47,9 @@ public class RecruiterController {
     public ResponseEntity<byte[]> getResumeByApplicationNumber(@PathVariable("id") Long applicationId){
         return recruiterService.getResume(applicationId);
     }
+
+    @PutMapping("application/{id}/status")
+    public ResponseEntity<String> changeApplicationStatus(@RequestPart String status, @PathVariable("id") Long applicationId){
+        return recruiterService.changeApplicationStatus(status, applicationId);
+    }
 }

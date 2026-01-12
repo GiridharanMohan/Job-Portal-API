@@ -100,4 +100,18 @@ public class RecruiterService {
                 .contentType(MediaType.valueOf(application.getApplicant().getFileType()))
                 .body(resume);
     }
+
+    @PreAuthorize("hasRole('RECRUITER')")
+    public ResponseEntity<String> changeApplicationStatus(String status, Long applicationId) {
+        Application applicationEntity = applicationRepository.findById(applicationId)
+                .orElseThrow(() -> new RuntimeException("Application not found"));
+        String currentStatus = applicationEntity.getStatus();
+        if(currentStatus.equalsIgnoreCase(Constant.STATUS_REJECTED) || currentStatus.equalsIgnoreCase(Constant.STATUS_SHORTLISTED)) {
+            return ResponseEntity.ok("This application is "+currentStatus+" already");
+        }
+        applicationEntity.setStatus(status.toUpperCase());
+        applicationEntity.setUpdatedOn(LocalDateTime.now());
+        applicationRepository.save(applicationEntity);
+        return ResponseEntity.ok("Status has been changed to "+status);
+    }
 }
