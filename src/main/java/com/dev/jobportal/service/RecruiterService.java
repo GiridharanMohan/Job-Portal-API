@@ -103,12 +103,19 @@ public class RecruiterService {
 
     @PreAuthorize("hasRole('RECRUITER')")
     public ResponseEntity<String> changeApplicationStatus(String status, Long applicationId) {
+        User user = jwtUtil.getUserFromToken();
         Application applicationEntity = applicationRepository.findById(applicationId)
                 .orElseThrow(() -> new RuntimeException("Application not found"));
+
+        if(!applicationEntity.getJob().getPostedBy().equals(user)){
+            return ResponseEntity.badRequest().body("unauthorized user");
+        }
+
         String currentStatus = applicationEntity.getStatus();
         if(currentStatus.equalsIgnoreCase(Constant.STATUS_REJECTED) || currentStatus.equalsIgnoreCase(Constant.STATUS_SHORTLISTED)) {
             return ResponseEntity.ok("This application is "+currentStatus+" already");
         }
+
         applicationEntity.setStatus(status.toUpperCase());
         applicationEntity.setUpdatedOn(LocalDateTime.now());
         applicationRepository.save(applicationEntity);
