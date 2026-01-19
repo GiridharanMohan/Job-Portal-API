@@ -5,6 +5,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
+
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
@@ -29,4 +31,10 @@ public class Applicant {
     @OneToOne
     @JoinColumn(name = "user_id")
     private User user;
+
+    @Column(name = "created_on", nullable = false)
+    private LocalDateTime createdOn;
+
+    @Column(name = "updated_on")
+    private LocalDateTime updatedOn;
 }

@@ -20,6 +20,8 @@ public class Util {
         jobResponseDto.setPostedOn(job.getPostedOn());
         jobResponseDto.setPostedBy(job.getPostedBy().getUsername());
         jobResponseDto.setJobStatus(job.getJobStatus());
+        jobResponseDto.setUpdatedOn(job.getUpdateOn());
+        jobResponseDto.setTotalApplication(job.getTotalApplication());
         return jobResponseDto;
     }
 
@@ -33,6 +35,7 @@ public class Util {
         applicationResponseDto.setResumeFileName(application.getApplicant().getFileName());
         applicationResponseDto.setApplicationStatus(application.getStatus());
         applicationResponseDto.setAppliedOn(application.getAppliedOn());
+        applicationResponseDto.setUpdatedOn(application.getUpdatedOn());
         return applicationResponseDto;
     }
 }

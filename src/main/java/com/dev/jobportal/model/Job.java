@@ -42,10 +42,15 @@ public class Job {
     @Column(name = "posted_on", nullable = false)
     private LocalDateTime postedOn;
 
+    @Column(name = "updated_on")
+    private LocalDateTime updateOn;
+
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
     private User postedBy;
 
     @Column(name = "job_status", nullable = false)
     private String jobStatus;
+
+    private Long totalApplication;
 }

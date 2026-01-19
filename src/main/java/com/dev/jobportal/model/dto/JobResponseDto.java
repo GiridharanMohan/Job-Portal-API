@@ -17,4 +17,6 @@ public class JobResponseDto {
     private LocalDateTime postedOn;
     private String postedBy;
     private String jobStatus;
+    private LocalDateTime updatedOn;
+    private Long totalApplication;
 }

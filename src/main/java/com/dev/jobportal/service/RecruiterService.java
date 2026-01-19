@@ -42,6 +42,7 @@ public class RecruiterService {
         job.setPostedBy(user);
         job.setPostedOn(LocalDateTime.now());
         job.setJobStatus(Constant.STATUS_OPEN);
+        job.setTotalApplication(0L);
         jobRepository.save(job);
         return ResponseEntity.ok("Job posted successfully");
     }
@@ -69,9 +70,10 @@ public class RecruiterService {
     public ResponseEntity<String> closeHiring(Long id) {
         User user = jwtUtil.getUserFromToken();
         Optional<Job> job = jobRepository.findById(id);
-        if (job.isPresent() && job.get().getPostedBy().getEmail().equals(user.getEmail())) {
+        if (job.isPresent() && job.get().getPostedBy().equals(user)) {
             Job newJob = job.get();
             newJob.setJobStatus(Constant.STATUS_CLOSED);
+            newJob.setUpdateOn(LocalDateTime.now());
             jobRepository.save(newJob);
             return ResponseEntity.status(HttpStatus.OK).body("Job has been closed");
         }
@@ -98,5 +100,26 @@ public class RecruiterService {
         return ResponseEntity.ok()
                 .contentType(MediaType.valueOf(application.getApplicant().getFileType()))
                 .body(resume);
+    }
+
+    @PreAuthorize("hasRole('RECRUITER')")
+    public ResponseEntity<String> changeApplicationStatus(String status, Long applicationId) {
+        User user = jwtUtil.getUserFromToken();
+        Application applicationEntity = applicationRepository.findById(applicationId)
+                .orElseThrow(() -> new RuntimeException("Application not found"));
+
+        if(!applicationEntity.getJob().getPostedBy().equals(user)){
+            return ResponseEntity.badRequest().body("unauthorized user");
+        }
+
+        String currentStatus = applicationEntity.getStatus();
+        if(currentStatus.equalsIgnoreCase(Constant.STATUS_REJECTED) || currentStatus.equalsIgnoreCase(Constant.STATUS_SHORTLISTED)) {
+            return ResponseEntity.ok("This application is "+currentStatus+" already");
+        }
+
+        applicationEntity.setStatus(status.toUpperCase());
+        applicationEntity.setUpdatedOn(LocalDateTime.now());
+        applicationRepository.save(applicationEntity);
+        return ResponseEntity.ok("Status has been changed to "+status);
     }
 }

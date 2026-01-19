@@ -32,4 +32,7 @@ public class Application {
 
     @Column(name = "status", nullable = false)
     private String status;
+
+    @Column(name = "updated_on")
+    private LocalDateTime updatedOn;
 }
