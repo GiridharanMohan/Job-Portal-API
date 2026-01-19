@@ -13,6 +13,7 @@ import com.dev.jobportal.util.JwtUtil;
 import com.dev.jobportal.util.Util;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
@@ -83,6 +84,9 @@ public class ApplicantService {
                 .orElseThrow(() -> new UsernameNotFoundException("User with ID: "+user.getId()+" not found"));
         try {
             if (!resumeFile.isEmpty()) {
+                if(!validFileType(resumeFile)){
+                    return ResponseEntity.badRequest().body("Not a pdf file");
+                }
                 log.info("setting resume to their respective fields");
                 existingApplicant.setFileName(resumeFile.getOriginalFilename());
                 existingApplicant.setFileType(resumeFile.getContentType());
@@ -101,5 +105,9 @@ public class ApplicantService {
         return applicationRepository
                 .findByApplicantIdAndJobId(applicant.getId(), job.getId())
                 .isPresent();
+    }
+
+    private boolean validFileType(MultipartFile file){
+        return file.getContentType() != null && file.getContentType().equals(MediaType.APPLICATION_PDF_VALUE);
     }
 }
