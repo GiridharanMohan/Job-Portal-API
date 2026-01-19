@@ -67,6 +67,10 @@ public class ApplicantService {
             application.setAppliedOn(LocalDateTime.now());
             application.setStatus(Constant.STATUS_APPLIED);
             applicationRepository.save(application);
+
+            Long applicationCount = job.getTotalApplication();
+            job.setTotalApplication(++applicationCount);
+            jobRepository.save(job);
             return ResponseEntity.ok("Applied successfully");
         }
         return ResponseEntity.ok("Resume not found! Please upload your resume to apply for the job");

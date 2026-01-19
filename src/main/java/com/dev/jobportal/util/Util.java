@@ -21,6 +21,7 @@ public class Util {
         jobResponseDto.setPostedBy(job.getPostedBy().getUsername());
         jobResponseDto.setJobStatus(job.getJobStatus());
         jobResponseDto.setUpdatedOn(job.getUpdateOn());
+        jobResponseDto.setTotalApplication(job.getTotalApplication());
         return jobResponseDto;
     }
 

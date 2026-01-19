@@ -51,4 +51,6 @@ public class Job {
 
     @Column(name = "job_status", nullable = false)
     private String jobStatus;
+
+    private Long totalApplication;
 }

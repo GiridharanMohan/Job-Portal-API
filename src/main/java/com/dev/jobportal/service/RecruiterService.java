@@ -42,6 +42,7 @@ public class RecruiterService {
         job.setPostedBy(user);
         job.setPostedOn(LocalDateTime.now());
         job.setJobStatus(Constant.STATUS_OPEN);
+        job.setTotalApplication(0L);
         jobRepository.save(job);
         return ResponseEntity.ok("Job posted successfully");
     }
