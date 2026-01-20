@@ -126,7 +126,7 @@ public class RecruiterService {
         Application applicationResponse = applicationRepository.save(applicationEntity);
         emailUtil.sendEmailNotification(applicationResponse.getApplicant().getUser().getEmail(), Constant.APPLICATION_STATUS_CHANGED,
                 applicationResponse.getApplicant().getUser().getUsername(), Constant.APPLICATION_STATUS_CHANGED,
-                applicationEntity.getJob().getJobTitle() , applicationResponse.getStatus());
+                applicationResponse.getJob().getJobTitle() , applicationResponse.getStatus());
         return ResponseEntity.ok("Status has been changed to "+status);
     }
 }
