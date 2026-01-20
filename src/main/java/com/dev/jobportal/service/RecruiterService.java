@@ -8,6 +8,7 @@ import com.dev.jobportal.model.dto.JobResponseDto;
 import com.dev.jobportal.repository.ApplicationRepository;
 import com.dev.jobportal.repository.JobRepository;
 import com.dev.jobportal.util.Constant;
+import com.dev.jobportal.util.EmailUtil;
 import com.dev.jobportal.util.JwtUtil;
 import com.dev.jobportal.util.Util;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,6 +36,9 @@ public class RecruiterService {
 
     @Autowired
     private Util util;
+
+    @Autowired
+    private EmailUtil emailUtil;
 
     @PreAuthorize("hasRole('RECRUITER')")
     public ResponseEntity<String> postJob(Job job) {
@@ -119,7 +123,10 @@ public class RecruiterService {
 
         applicationEntity.setStatus(status.toUpperCase());
         applicationEntity.setUpdatedOn(LocalDateTime.now());
-        applicationRepository.save(applicationEntity);
+        Application applicationResponse = applicationRepository.save(applicationEntity);
+        emailUtil.sendEmailNotification(applicationResponse.getApplicant().getUser().getEmail(), Constant.APPLICATION_STATUS_CHANGED,
+                applicationResponse.getApplicant().getUser().getUsername(), Constant.APPLICATION_STATUS_CHANGED,
+                applicationResponse.getJob().getJobTitle() , applicationResponse.getStatus());
         return ResponseEntity.ok("Status has been changed to "+status);
     }
 }
