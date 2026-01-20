@@ -13,4 +13,5 @@ public class Constant {
     public static final String MAIL_SENT_FAILURE = "Failed to send email";
     public static final String APPLICATION_SUBMITTED = "Your application has been submitted";
     public static final String APPLICATION_SUBMITTED_SUCCESSFULLY = "Your application has been submitted successfully";
+    public static final String APPLICATION_STATUS_CHANGED = "Your application status has been changed";
 }
