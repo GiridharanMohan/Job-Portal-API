@@ -1,14 +1,12 @@
 package com.dev.jobportal.service;
 
-import com.dev.jobportal.model.Applicant;
-import com.dev.jobportal.model.Application;
-import com.dev.jobportal.model.Job;
-import com.dev.jobportal.model.User;
+import com.dev.jobportal.model.*;
 import com.dev.jobportal.model.dto.JobResponseDto;
 import com.dev.jobportal.repository.ApplicantRepository;
 import com.dev.jobportal.repository.ApplicationRepository;
 import com.dev.jobportal.repository.JobRepository;
 import com.dev.jobportal.util.Constant;
+import com.dev.jobportal.util.EmailUtil;
 import com.dev.jobportal.util.JwtUtil;
 import com.dev.jobportal.util.Util;
 import lombok.extern.slf4j.Slf4j;
@@ -42,6 +40,9 @@ public class ApplicantService {
     @Autowired
     private Util util;
 
+    @Autowired
+    private EmailUtil emailUtil;
+
     public ResponseEntity<List<JobResponseDto>> getAvailableJobs() {
         List<JobResponseDto> allAvailableJobs = jobRepository.findAll().stream()
                 .filter(job -> job.getJobStatus().equals(Constant.STATUS_OPEN))
@@ -67,11 +68,13 @@ public class ApplicantService {
             application.setJob(job);
             application.setAppliedOn(LocalDateTime.now());
             application.setStatus(Constant.STATUS_APPLIED);
-            applicationRepository.save(application);
+            Application applicationEntity = applicationRepository.save(application);
 
             Long applicationCount = job.getTotalApplication();
             job.setTotalApplication(++applicationCount);
             jobRepository.save(job);
+            emailUtil.sendEmailNotification(user.getEmail(), Constant.APPLICATION_SUBMITTED, user.getUsername(),
+                    Constant.APPLICATION_SUBMITTED_SUCCESSFULLY, job.getJobTitle(), applicationEntity.getStatus());
             return ResponseEntity.ok("Applied successfully");
         }
         return ResponseEntity.ok("Resume not found! Please upload your resume to apply for the job");
