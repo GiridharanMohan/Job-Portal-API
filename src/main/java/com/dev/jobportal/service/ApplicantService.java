@@ -51,13 +51,13 @@ public class ApplicantService {
     }
 
     public ResponseEntity<String> applyForJob(Long jobId) {
+        Job job = jobRepository.findById(jobId).orElseThrow(() -> new RuntimeException("Invalid job ID"));
+        if(job.getJobStatus().equals(Constant.STATUS_CLOSED))
+            return ResponseEntity.ok("Recruiter is not accepting any further applications");
+
         User user = jwtUtil.getUserFromToken();
         Applicant applicant = applicantRepository.findByUserId(user.getId())
                 .orElseThrow(() -> new RuntimeException("Applicant not found for user ID: " + user.getId()));
-        Job job = jobRepository.findById(jobId).orElseThrow(() -> new RuntimeException("Invalid job ID"));
-
-        if(job.getJobStatus().equals(Constant.STATUS_CLOSED))
-            return ResponseEntity.ok("Recruiter is not accepting any further applications");
 
         if (hasAlreadyApplied(applicant, job))
             return ResponseEntity.ok("You have already applied for this job");
