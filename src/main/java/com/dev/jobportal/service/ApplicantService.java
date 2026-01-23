@@ -81,7 +81,6 @@ public class ApplicantService {
             jobRepository.save(job);
             emailUtil.sendEmailNotification(user.getEmail(), Constant.APPLICATION_SUBMITTED, user.getUsername(),
                     Constant.APPLICATION_SUBMITTED_SUCCESSFULLY, job.getJobTitle(), applicationEntity.getStatus());
-            log.debug("Sent an email to the E-mail ID: {}", user.getEmail());
             return ResponseEntity.ok("Applied successfully");
         }
         return ResponseEntity.ok("Resume not found! Please upload your resume to apply for the job");
@@ -107,7 +106,7 @@ public class ApplicantService {
                 return ResponseEntity.ok("Resume uploaded successfully");
             }
         } catch (IOException e){
-            log.error("IOException occured");
+            log.error("IOException occurred");
             return ResponseEntity.unprocessableContent().body("Error in getting resume");
         }
         log.warn("Resume is empty");
