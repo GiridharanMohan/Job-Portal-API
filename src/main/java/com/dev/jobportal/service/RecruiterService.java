@@ -11,6 +11,7 @@ import com.dev.jobportal.util.Constant;
 import com.dev.jobportal.util.EmailUtil;
 import com.dev.jobportal.util.JwtUtil;
 import com.dev.jobportal.util.Util;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -22,6 +23,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
+@Slf4j
 @Service
 public class RecruiterService {
 
@@ -67,6 +69,7 @@ public class RecruiterService {
             JobResponseDto jobResponse = util.toJobResponseDto(job.get());
             return ResponseEntity.ok(jobResponse);
         }
+        log.info("Job ID: {} does not exists", id);
         return ResponseEntity.badRequest().build();
     }
 
@@ -93,6 +96,7 @@ public class RecruiterService {
                     .stream().map(application -> util.toApplicationResponseDto(application)).toList();
             return ResponseEntity.ok(listOfApplications);
         }
+        log.info("Job ID: {} does not exists", id);
         return ResponseEntity.badRequest().build();
     }
 

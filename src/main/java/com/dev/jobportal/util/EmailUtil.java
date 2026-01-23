@@ -28,7 +28,7 @@ public class EmailUtil {
             mail.setTo(emailDetails.getRecipient());
             mail.setText(emailDetails.getBody());
             javaMailSender.send(mail);
-            log.info(Constant.MAIL_SENT_SUCCESSFUL);
+            log.info("{}, Mail ID: {}",Constant.MAIL_SENT_SUCCESSFUL, mail);
         } catch (Exception e){
             log.error(Constant.MAIL_SENT_FAILURE);
         }
@@ -62,7 +62,7 @@ public class EmailUtil {
             helper.setSubject(subject);
             helper.setText(htmlBody, true);
             javaMailSender.send(mimeMessage);
-            log.info(Constant.MAIL_SENT_SUCCESSFUL);
+            log.info("{}, Mail ID: {}",Constant.MAIL_SENT_SUCCESSFUL, recipient);
         } catch (Exception e){
             log.error(Constant.MAIL_SENT_FAILURE);
         }

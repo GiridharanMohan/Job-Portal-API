@@ -44,6 +44,7 @@ public class ApplicantService {
     private EmailUtil emailUtil;
 
     public ResponseEntity<List<JobResponseDto>> getAvailableJobs() {
+        log.info("Fetching all jobs with status OPEN");
         List<JobResponseDto> allAvailableJobs = jobRepository.findAll().stream()
                 .filter(job -> job.getJobStatus().equals(Constant.STATUS_OPEN))
                 .map(job -> util.toJobResponseDto(job)).toList();
@@ -52,15 +53,20 @@ public class ApplicantService {
 
     public ResponseEntity<String> applyForJob(Long jobId) {
         Job job = jobRepository.findById(jobId).orElseThrow(() -> new RuntimeException("Invalid job ID"));
-        if(job.getJobStatus().equals(Constant.STATUS_CLOSED))
+
+        if(job.getJobStatus().equals(Constant.STATUS_CLOSED)) {
+            log.debug("Job with job ID: {} have closed hiring", jobId);
             return ResponseEntity.ok("Recruiter is not accepting any further applications");
+        }
 
         User user = jwtUtil.getUserFromToken();
         Applicant applicant = applicantRepository.findByUserId(user.getId())
                 .orElseThrow(() -> new RuntimeException("Applicant not found for user ID: " + user.getId()));
 
-        if (hasAlreadyApplied(applicant, job))
+        if (hasAlreadyApplied(applicant, job)) {
+            log.debug("Applicant with ID: {} have already applied for the Job with ID: {}", applicant.getId(), jobId);
             return ResponseEntity.ok("You have already applied for this job");
+        }
 
         if (applicant.getResume() != null) {
             Application application = new Application();
@@ -69,7 +75,7 @@ public class ApplicantService {
             application.setAppliedOn(LocalDateTime.now());
             application.setStatus(Constant.STATUS_APPLIED);
             Application applicationEntity = applicationRepository.save(application);
-
+            log.info("Applied to the Job ID:{} successfully", jobId);
             Long applicationCount = job.getTotalApplication();
             job.setTotalApplication(++applicationCount);
             jobRepository.save(job);
@@ -81,26 +87,29 @@ public class ApplicantService {
     }
 
     public ResponseEntity<String> uploadResume(MultipartFile resumeFile) {
-        log.info("Beginning of uploadResume");
+        log.debug("Beginning of uploadResume");
         User user = jwtUtil.getUserFromToken();
         Applicant existingApplicant = applicantRepository.findByUserId(user.getId())
                 .orElseThrow(() -> new UsernameNotFoundException("User with ID: "+user.getId()+" not found"));
         try {
             if (!resumeFile.isEmpty()) {
                 if(!validFileType(resumeFile)){
+                    log.warn("Not a PDF file, failed to upload");
                     return ResponseEntity.badRequest().body("Not a pdf file");
                 }
-                log.info("setting resume to their respective fields");
                 existingApplicant.setFileName(resumeFile.getOriginalFilename());
                 existingApplicant.setFileType(resumeFile.getContentType());
                 existingApplicant.setResume(resumeFile.getBytes());
                 existingApplicant.setUpdatedOn(LocalDateTime.now());
                 applicantRepository.save(existingApplicant);
+                log.info("Uploaded resume successfully");
                 return ResponseEntity.ok("Resume uploaded successfully");
             }
         } catch (IOException e){
+            log.error("IOException occurred");
             return ResponseEntity.unprocessableContent().body("Error in getting resume");
         }
+        log.warn("Resume is empty");
         return ResponseEntity.badRequest().body("Resume should not be empty");
     }
 
