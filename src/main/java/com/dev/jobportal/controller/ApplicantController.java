@@ -25,13 +25,13 @@ public class ApplicantController {
 
     @PostMapping("/apply")
     public ResponseEntity<String> applyForJob(@RequestParam Long jobId){
-        log.info("Applying for job with ID: {}", jobId);
+        log.info("Processing request to apply for the job ID: {}", jobId);
         return applicantService.applyForJob(jobId);
     }
 
     @PostMapping(value = "/upload-resume", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<String> uploadResume(@RequestPart("file") MultipartFile resumeFile) {
-        log.info("Uploading resume with file name: {}", resumeFile.getOriginalFilename());
+        log.info("Processing request to upload the resume, File name: {}", resumeFile.getOriginalFilename());
         return applicantService.uploadResume(resumeFile);
     }
 }
