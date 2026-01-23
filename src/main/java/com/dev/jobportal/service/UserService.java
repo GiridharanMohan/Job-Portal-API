@@ -36,7 +36,7 @@ public class UserService {
 
     public ResponseEntity<?> recruiterRegistration(User user) {
         if (userRepository.findByEmail(user.getEmail()).isPresent()) {
-            log.debug("User already exists");
+            log.warn("User already exists");
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Email already exists, try login");
         }
 
@@ -47,7 +47,7 @@ public class UserService {
 
     public ResponseEntity<?> employeeRegistration(@Valid User user) {
         if (userRepository.findByEmail(user.getEmail()).isPresent()) {
-            log.debug("User already exists");
+            log.warn("User already exists");
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Email already exists, try login");
         }
 
@@ -62,6 +62,7 @@ public class UserService {
         String password = credentials.get("password");
 
         if (email == null || password == null) {
+            log.error("Login request failed due to email or password is null. Email: {}", email);
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Email and password must be provided");
         }
         Optional<User> user = userRepository.findByEmail(email);
@@ -73,7 +74,7 @@ public class UserService {
         if (!passwordEncoder.matches(password, user.get().getPassword())) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid password");
         }
-
+        log.info("Generating a token");
         String token = jwtUtil.generateToken(user.get());
         return ResponseEntity.status(HttpStatus.OK).body(Map.of("token", token, "message", "Login successful"));
     }
