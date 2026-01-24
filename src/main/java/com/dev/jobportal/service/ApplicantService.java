@@ -1,5 +1,8 @@
 package com.dev.jobportal.service;
 
+import com.dev.jobportal.exception.JobNotFoundException;
+import com.dev.jobportal.exception.ApplicantNotFoundException;
+import com.dev.jobportal.exception.UserNotFoundException;
 import com.dev.jobportal.model.*;
 import com.dev.jobportal.model.dto.JobResponseDto;
 import com.dev.jobportal.repository.ApplicantRepository;
@@ -13,7 +16,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -52,7 +54,7 @@ public class ApplicantService {
     }
 
     public ResponseEntity<String> applyForJob(Long jobId) {
-        Job job = jobRepository.findById(jobId).orElseThrow(() -> new RuntimeException("Invalid job ID"));
+        Job job = jobRepository.findById(jobId).orElseThrow(() -> new JobNotFoundException("Invalid job ID "+jobId));
 
         if(job.getJobStatus().equals(Constant.STATUS_CLOSED)) {
             log.debug("Job with job ID: {} have closed hiring", jobId);
@@ -61,7 +63,7 @@ public class ApplicantService {
 
         User user = jwtUtil.getUserFromToken();
         Applicant applicant = applicantRepository.findByUserId(user.getId())
-                .orElseThrow(() -> new RuntimeException("Applicant not found for user ID: " + user.getId()));
+                .orElseThrow(() -> new ApplicantNotFoundException("Applicant not found for user ID"));
 
         if (hasAlreadyApplied(applicant, job)) {
             log.debug("Applicant with ID: {} have already applied for the Job with ID: {}", applicant.getId(), jobId);
@@ -90,7 +92,7 @@ public class ApplicantService {
         log.debug("Beginning of uploadResume");
         User user = jwtUtil.getUserFromToken();
         Applicant existingApplicant = applicantRepository.findByUserId(user.getId())
-                .orElseThrow(() -> new UsernameNotFoundException("User with ID: "+user.getId()+" not found"));
+                .orElseThrow(() -> new UserNotFoundException("Applicant with ID: "+user.getId()+" not found"));
         try {
             if (!resumeFile.isEmpty()) {
                 if(!validFileType(resumeFile)){
