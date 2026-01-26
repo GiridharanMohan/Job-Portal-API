@@ -73,15 +73,12 @@ public class RecruiterService {
 
     @PreAuthorize("hasRole('RECRUITER')")
     public ResponseEntity<JobResponseDto> getPostedJobById(Long id) {
-        Job job = jobRepository.findById(id)
-                .orElseThrow(() -> new JobNotFoundException("Job not found. Job ID: "+id));
         User user = jwtUtil.getUserFromToken();
-        if (job.getPostedBy().getEmail().equals(user.getEmail())) {
-            JobResponseDto jobResponse = util.toJobResponseDto(job);
-            return ResponseEntity.ok(jobResponse);
-        }
-        log.info("Job ID: {} does not exists", id);
-        return ResponseEntity.badRequest().build();
+        Job job = jobRepository.findByIdAndPostedById(id, user.getId())
+                .orElseThrow(() -> new JobNotFoundException("Job not found. Job ID: "+id));
+
+        JobResponseDto jobResponse = util.toJobResponseDto(job);
+        return ResponseEntity.ok(jobResponse);
     }
 
     @PreAuthorize("hasRole('RECRUITER')")
