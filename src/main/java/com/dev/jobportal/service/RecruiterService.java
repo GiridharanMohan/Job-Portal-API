@@ -1,5 +1,7 @@
 package com.dev.jobportal.service;
 
+import com.dev.jobportal.exception.ApplicationNotFoundException;
+import com.dev.jobportal.exception.JobNotFoundException;
 import com.dev.jobportal.model.Application;
 import com.dev.jobportal.model.Job;
 import com.dev.jobportal.model.User;
@@ -63,10 +65,11 @@ public class RecruiterService {
 
     @PreAuthorize("hasRole('RECRUITER')")
     public ResponseEntity<JobResponseDto> getPostedJobById(Long id) {
+        Job job = jobRepository.findById(id)
+                .orElseThrow(() -> new JobNotFoundException("Job not found. Job ID: "+id));
         User user = jwtUtil.getUserFromToken();
-        Optional<Job> job = jobRepository.findById(id);
-        if (job.isPresent() && job.get().getPostedBy().getEmail().equals(user.getEmail())) {
-            JobResponseDto jobResponse = util.toJobResponseDto(job.get());
+        if (job.getPostedBy().getEmail().equals(user.getEmail())) {
+            JobResponseDto jobResponse = util.toJobResponseDto(job);
             return ResponseEntity.ok(jobResponse);
         }
         log.info("Job ID: {} does not exists", id);
@@ -75,13 +78,13 @@ public class RecruiterService {
 
     @PreAuthorize("hasRole('RECRUITER')")
     public ResponseEntity<String> closeHiring(Long id) {
+        Job job = jobRepository.findById(id)
+                .orElseThrow(() -> new JobNotFoundException("Job not found. Job ID: "+id));
         User user = jwtUtil.getUserFromToken();
-        Optional<Job> job = jobRepository.findById(id);
-        if (job.isPresent() && job.get().getPostedBy().equals(user)) {
-            Job newJob = job.get();
-            newJob.setJobStatus(Constant.STATUS_CLOSED);
-            newJob.setUpdateOn(LocalDateTime.now());
-            jobRepository.save(newJob);
+        if (job.getPostedBy().equals(user)) {
+            job.setJobStatus(Constant.STATUS_CLOSED);
+            job.setUpdateOn(LocalDateTime.now());
+            jobRepository.save(job);
             return ResponseEntity.status(HttpStatus.OK).body("Job has been closed");
         }
         return ResponseEntity.badRequest().body("Invalid Job ID");
@@ -89,10 +92,11 @@ public class RecruiterService {
 
     @PreAuthorize("hasRole('RECRUITER')")
     public ResponseEntity<List<ApplicationResponseDto>> getAllApplicationsForJobId(Long id, String jobTitle) {
+        Job job = jobRepository.findById(id)
+                .orElseThrow(() -> new JobNotFoundException("Job not found. Job ID: "+id));
         User user = jwtUtil.getUserFromToken();
-        Optional<Job> job = jobRepository.findById(id);
-        if (job.isPresent() && job.get().getPostedBy().getEmail().equals(user.getEmail()) && job.get().getJobTitle().equals(jobTitle)) {
-            List<ApplicationResponseDto> listOfApplications = applicationRepository.findAllByJob(job.get())
+        if (job.getPostedBy().equals(user) && job.getJobTitle().equals(jobTitle)) {
+            List<ApplicationResponseDto> listOfApplications = applicationRepository.findAllByJob(job)
                     .stream().map(application -> util.toApplicationResponseDto(application)).toList();
             return ResponseEntity.ok(listOfApplications);
         }
@@ -103,18 +107,23 @@ public class RecruiterService {
     @PreAuthorize("hasRole('RECRUITER')")
     public ResponseEntity<byte[]> getResume(Long applicationId){
         Application application = applicationRepository.findById(applicationId)
-                .orElseThrow(() -> new RuntimeException("No application found"));
-        byte[] resume = application.getApplicant().getResume();
-        return ResponseEntity.ok()
-                .contentType(MediaType.valueOf(application.getApplicant().getFileType()))
-                .body(resume);
+                .orElseThrow(() -> new ApplicationNotFoundException("No application found for Application ID: "+applicationId));
+        User user = jwtUtil.getUserFromToken();
+        if(application.getJob().getPostedBy().equals(user)) {
+            byte[] resume = application.getApplicant().getResume();
+            return ResponseEntity.ok()
+                    .contentType(MediaType.valueOf(application.getApplicant().getFileType()))
+                    .body(resume);
+        }
+        log.warn("Application ID: {} not found", applicationId);
+        return ResponseEntity.badRequest().build();
     }
 
     @PreAuthorize("hasRole('RECRUITER')")
     public ResponseEntity<String> changeApplicationStatus(String status, Long applicationId) {
-        User user = jwtUtil.getUserFromToken();
         Application applicationEntity = applicationRepository.findById(applicationId)
-                .orElseThrow(() -> new RuntimeException("Application not found"));
+                .orElseThrow(() -> new ApplicationNotFoundException("No application found for Application ID: "+applicationId));
+        User user = jwtUtil.getUserFromToken();
 
         if(!applicationEntity.getJob().getPostedBy().equals(user)){
             return ResponseEntity.badRequest().body("unauthorized user");
