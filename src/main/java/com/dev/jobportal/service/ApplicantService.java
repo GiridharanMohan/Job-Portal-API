@@ -5,6 +5,7 @@ import com.dev.jobportal.exception.ApplicantNotFoundException;
 import com.dev.jobportal.exception.UserNotFoundException;
 import com.dev.jobportal.model.*;
 import com.dev.jobportal.model.dto.JobResponseDto;
+import com.dev.jobportal.model.dto.PaginatedJobResponse;
 import com.dev.jobportal.repository.ApplicantRepository;
 import com.dev.jobportal.repository.ApplicationRepository;
 import com.dev.jobportal.repository.JobRepository;
@@ -14,6 +15,9 @@ import com.dev.jobportal.util.JwtUtil;
 import com.dev.jobportal.util.Util;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -45,12 +49,16 @@ public class ApplicantService {
     @Autowired
     private EmailUtil emailUtil;
 
-    public ResponseEntity<List<JobResponseDto>> getAvailableJobs() {
+    public ResponseEntity<PaginatedJobResponse> getAvailableJobs(int pageNumber, int pageSize) {
         log.info("Fetching all jobs with status OPEN");
-        List<JobResponseDto> allAvailableJobs = jobRepository.findAll().stream()
-                .filter(job -> job.getJobStatus().equals(Constant.STATUS_OPEN))
-                .map(job -> util.toJobResponseDto(job)).toList();
-        return ResponseEntity.ok(allAvailableJobs);
+        Pageable pageable = PageRequest.of(pageNumber-1, pageSize);
+        Page<Job> pageableJobs = jobRepository.findAllByJobStatus(pageable, Constant.STATUS_OPEN);
+        List<JobResponseDto> allAvailableJobs = pageableJobs.getContent()
+                .stream()
+                .map(job -> util.toJobResponseDto(job))
+                .toList();
+        PaginatedJobResponse jobs = util.convertToPaginatedJobResponse(allAvailableJobs, pageableJobs);
+        return ResponseEntity.ok(jobs);
     }
 
     public ResponseEntity<String> applyForJob(Long jobId) {
