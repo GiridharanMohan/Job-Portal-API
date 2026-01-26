@@ -4,7 +4,7 @@ import com.dev.jobportal.model.Application;
 import com.dev.jobportal.model.Job;
 import com.dev.jobportal.model.dto.ApplicationResponseDto;
 import com.dev.jobportal.model.dto.JobResponseDto;
-import com.dev.jobportal.model.dto.PaginatedJobResponse;
+import com.dev.jobportal.model.dto.PaginatedResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Component;
 
@@ -43,13 +43,13 @@ public class Util {
         return applicationResponseDto;
     }
 
-    public PaginatedJobResponse convertToPaginatedJobResponse(List<JobResponseDto> job, Page<Job> pageableJobs) {
-        PaginatedJobResponse response = new PaginatedJobResponse();
-        response.setContent(job);
-        response.setPageSize(pageableJobs.getSize());
-        response.setPageNumber(pageableJobs.getNumber());
-        response.setTotalPages(pageableJobs.getTotalPages());
-        response.setTotalElements(pageableJobs.getTotalElements());
+    public PaginatedResponse convertToPaginatedResponse(List<?> content, Page<?> pageable) {
+        PaginatedResponse response = new PaginatedResponse();
+        response.setContent(content);
+        response.setPageSize(pageable.getSize());
+        response.setPageNumber(pageable.getNumber());
+        response.setTotalPages(pageable.getTotalPages());
+        response.setTotalElements(pageable.getTotalElements());
         return response;
     }
 }

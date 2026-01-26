@@ -5,8 +5,8 @@ import lombok.Data;
 import java.util.List;
 
 @Data
-public class PaginatedJobResponse {
-    private List<JobResponseDto> content;
+public class PaginatedResponse {
+    private List<?> content;
     private int pageNumber;
     private int pageSize;
     private long totalElements;

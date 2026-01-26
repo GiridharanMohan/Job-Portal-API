@@ -7,6 +7,7 @@ import com.dev.jobportal.model.Job;
 import com.dev.jobportal.model.User;
 import com.dev.jobportal.model.dto.ApplicationResponseDto;
 import com.dev.jobportal.model.dto.JobResponseDto;
+import com.dev.jobportal.model.dto.PaginatedResponse;
 import com.dev.jobportal.repository.ApplicationRepository;
 import com.dev.jobportal.repository.JobRepository;
 import com.dev.jobportal.util.Constant;
@@ -15,6 +16,9 @@ import com.dev.jobportal.util.JwtUtil;
 import com.dev.jobportal.util.Util;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -23,7 +27,6 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 
 @Slf4j
 @Service
@@ -56,11 +59,16 @@ public class RecruiterService {
     }
 
     @PreAuthorize("hasRole('RECRUITER')")
-    public ResponseEntity<List<JobResponseDto>> getPostedJobs() {
+    public ResponseEntity<PaginatedResponse> getPostedJobs(int pageNumber, int pageSize) {
         User user = jwtUtil.getUserFromToken();
-        List<JobResponseDto> jobsPostedByUser = jobRepository.findByPostedBy(user).stream()
-                .map(job -> util.toJobResponseDto(job)).toList();
-        return ResponseEntity.status(HttpStatus.OK).body(jobsPostedByUser);
+        Pageable pageable = PageRequest.of(pageNumber-1, pageSize);
+        Page<Job> pageableJobs = jobRepository.findAllByPostedBy(pageable, user);
+        List<JobResponseDto> listOfJobResponseDto = pageableJobs.getContent()
+                .stream()
+                .map(job -> util.toJobResponseDto(job))
+                .toList();
+        PaginatedResponse jobs = util.convertToPaginatedResponse(listOfJobResponseDto, pageableJobs);
+        return ResponseEntity.status(HttpStatus.OK).body(jobs);
     }
 
     @PreAuthorize("hasRole('RECRUITER')")
@@ -91,15 +99,22 @@ public class RecruiterService {
     }
 
     @PreAuthorize("hasRole('RECRUITER')")
-    public ResponseEntity<List<ApplicationResponseDto>> getAllApplicationsForJobId(Long id, String jobTitle) {
+    public ResponseEntity<PaginatedResponse> getAllApplicationsForJobId(Long id, String jobTitle, int pageNumber, int pageSize) {
         Job job = jobRepository.findById(id)
                 .orElseThrow(() -> new JobNotFoundException("Job not found. Job ID: "+id));
         User user = jwtUtil.getUserFromToken();
+
         if (job.getPostedBy().equals(user) && job.getJobTitle().equals(jobTitle)) {
-            List<ApplicationResponseDto> listOfApplications = applicationRepository.findAllByJob(job)
-                    .stream().map(application -> util.toApplicationResponseDto(application)).toList();
-            return ResponseEntity.ok(listOfApplications);
+            Pageable pageable = PageRequest.of(pageNumber-1, pageSize);
+            Page<Application> pageableApplications = applicationRepository.findAllByJob(pageable, job);
+            List<ApplicationResponseDto> listOfApplications = pageableApplications.getContent()
+                    .stream()
+                    .map(application -> util.toApplicationResponseDto(application))
+                    .toList();
+            PaginatedResponse response = util.convertToPaginatedResponse(listOfApplications, pageableApplications);
+            return ResponseEntity.ok(response);
         }
+
         log.info("Job ID: {} does not exists", id);
         return ResponseEntity.badRequest().build();
     }

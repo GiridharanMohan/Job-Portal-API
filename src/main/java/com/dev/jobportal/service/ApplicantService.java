@@ -5,7 +5,7 @@ import com.dev.jobportal.exception.ApplicantNotFoundException;
 import com.dev.jobportal.exception.UserNotFoundException;
 import com.dev.jobportal.model.*;
 import com.dev.jobportal.model.dto.JobResponseDto;
-import com.dev.jobportal.model.dto.PaginatedJobResponse;
+import com.dev.jobportal.model.dto.PaginatedResponse;
 import com.dev.jobportal.repository.ApplicantRepository;
 import com.dev.jobportal.repository.ApplicationRepository;
 import com.dev.jobportal.repository.JobRepository;
@@ -49,7 +49,7 @@ public class ApplicantService {
     @Autowired
     private EmailUtil emailUtil;
 
-    public ResponseEntity<PaginatedJobResponse> getAvailableJobs(int pageNumber, int pageSize) {
+    public ResponseEntity<PaginatedResponse> getAvailableJobs(int pageNumber, int pageSize) {
         log.info("Fetching all jobs with status OPEN");
         Pageable pageable = PageRequest.of(pageNumber-1, pageSize);
         Page<Job> pageableJobs = jobRepository.findAllByJobStatus(pageable, Constant.STATUS_OPEN);
@@ -57,7 +57,7 @@ public class ApplicantService {
                 .stream()
                 .map(job -> util.toJobResponseDto(job))
                 .toList();
-        PaginatedJobResponse jobs = util.convertToPaginatedJobResponse(allAvailableJobs, pageableJobs);
+        PaginatedResponse jobs = util.convertToPaginatedResponse(allAvailableJobs, pageableJobs);
         return ResponseEntity.ok(jobs);
     }
 

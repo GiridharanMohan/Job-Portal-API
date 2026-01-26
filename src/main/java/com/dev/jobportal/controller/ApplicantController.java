@@ -1,6 +1,6 @@
 package com.dev.jobportal.controller;
 
-import com.dev.jobportal.model.dto.PaginatedJobResponse;
+import com.dev.jobportal.model.dto.PaginatedResponse;
 import com.dev.jobportal.service.ApplicantService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,7 +17,7 @@ public class ApplicantController {
     private ApplicantService applicantService;
 
     @GetMapping("/jobs")
-    public ResponseEntity<PaginatedJobResponse> getAvailableJobs(@RequestParam(name = "pageNumber") int pageNumber, @RequestParam(name = "size") int size) {
+    public ResponseEntity<PaginatedResponse> getAvailableJobs(@RequestParam(name = "pageNumber") int pageNumber, @RequestParam(name = "size") int size) {
         return applicantService.getAvailableJobs(pageNumber, size);
     }
 

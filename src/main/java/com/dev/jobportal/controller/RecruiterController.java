@@ -1,16 +1,14 @@
 package com.dev.jobportal.controller;
 
 import com.dev.jobportal.model.Job;
-import com.dev.jobportal.model.dto.ApplicationResponseDto;
 import com.dev.jobportal.model.dto.JobResponseDto;
+import com.dev.jobportal.model.dto.PaginatedResponse;
 import com.dev.jobportal.service.RecruiterService;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @Slf4j
 @RestController
@@ -27,9 +25,9 @@ public class RecruiterController {
     }
 
     @GetMapping("/posted-jobs")
-    public ResponseEntity<List<JobResponseDto>> getPostedJobs() {
+    public ResponseEntity<PaginatedResponse> getPostedJobs(@RequestParam(name = "pageNumber") int pageNumber, @RequestParam(name = "size") int pageSize) {
         log.info("Fetching jobs posted by the user");
-        return recruiterService.getPostedJobs();
+        return recruiterService.getPostedJobs(pageNumber, pageSize);
     }
 
     @GetMapping("/posted-jobs/{id}")
@@ -45,9 +43,11 @@ public class RecruiterController {
     }
 
     @GetMapping("/allApplicants")
-    public ResponseEntity<List<ApplicationResponseDto>> getAllApplicationsForJobId(@RequestParam Long id, @RequestParam String jobTitle) {
+    public ResponseEntity<PaginatedResponse> getAllApplicationsForJobId(@RequestParam Long id, @RequestParam String jobTitle,
+                                                                                   @RequestParam(name = "pageNumber") int pageNumber,
+                                                                                   @RequestParam(name = "size") int pageSize) {
         log.info("Processing request to get all applications for the Job ID: {}", id);
-        return recruiterService.getAllApplicationsForJobId(id, jobTitle);
+        return recruiterService.getAllApplicationsForJobId(id, jobTitle, pageNumber, pageSize);
     }
 
     @GetMapping("/{id}/resume")
