@@ -4,7 +4,11 @@ import com.dev.jobportal.model.Application;
 import com.dev.jobportal.model.Job;
 import com.dev.jobportal.model.dto.ApplicationResponseDto;
 import com.dev.jobportal.model.dto.JobResponseDto;
+import com.dev.jobportal.model.dto.PaginatedResponse;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Component;
+
+import java.util.List;
 
 @Component
 public class Util {
@@ -37,5 +41,15 @@ public class Util {
         applicationResponseDto.setAppliedOn(application.getAppliedOn());
         applicationResponseDto.setUpdatedOn(application.getUpdatedOn());
         return applicationResponseDto;
+    }
+
+    public PaginatedResponse convertToPaginatedResponse(List<?> content, Page<?> pageable) {
+        PaginatedResponse response = new PaginatedResponse();
+        response.setContent(content);
+        response.setPageSize(pageable.getSize());
+        response.setPageNumber(pageable.getNumber());
+        response.setTotalPages(pageable.getTotalPages());
+        response.setTotalElements(pageable.getTotalElements());
+        return response;
     }
 }

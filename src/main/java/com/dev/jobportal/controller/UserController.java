@@ -21,13 +21,13 @@ public class UserController {
 
     @PostMapping("/recruit/register")
     public ResponseEntity<?> recruiterRegistration(@RequestBody @Valid User user) {
-        log.info("Signing up as {} with E-mail ID: {}", Constant.ROLE_RECRUITER, user.getEmail());
+        log.info(Constant.SIGN_UP_DETAILS, Constant.ROLE_RECRUITER, user.getEmail());
         return userService.recruiterRegistration(user);
     }
 
     @PostMapping("/employee/register")
     public ResponseEntity<?> employeeRegistration(@RequestBody @Valid User user) {
-        log.info("Signing up as {} with E-mail ID: {}", Constant.ROLE_EMPLOYEE, user.getEmail());
+        log.info(Constant.SIGN_UP_DETAILS, Constant.ROLE_EMPLOYEE, user.getEmail());
         return userService.employeeRegistration(user);
     }
 
