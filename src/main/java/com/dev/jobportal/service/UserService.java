@@ -1,12 +1,13 @@
 package com.dev.jobportal.service;
 
+import com.dev.jobportal.exception.UserNotFoundException;
 import com.dev.jobportal.model.Applicant;
 import com.dev.jobportal.model.User;
+import com.dev.jobportal.model.dto.LoginRequestDto;
 import com.dev.jobportal.repository.ApplicantRepository;
 import com.dev.jobportal.repository.UserRepository;
 import com.dev.jobportal.util.Constant;
 import com.dev.jobportal.util.JwtUtil;
-import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -16,7 +17,6 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.Map;
-import java.util.Optional;
 
 @Slf4j
 @Service
@@ -45,7 +45,7 @@ public class UserService {
         return ResponseEntity.status(HttpStatus.OK).body(Map.of("token", token, "message", "Recruiter registered successfully"));
     }
 
-    public ResponseEntity<?> employeeRegistration(@Valid User user) {
+    public ResponseEntity<?> employeeRegistration(User user) {
         if (userRepository.findByEmail(user.getEmail()).isPresent()) {
             log.warn("User already exists");
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Email already exists, try login");
@@ -57,25 +57,18 @@ public class UserService {
         return ResponseEntity.status(HttpStatus.OK).body(Map.of("token", token, "message", "Employee registered successfully"));
     }
 
-    public ResponseEntity<?> login(Map<String, String> credentials) {
-        String email = credentials.get("email");
-        String password = credentials.get("password");
+    public ResponseEntity<?> login(LoginRequestDto credentials) {
+        String email = credentials.getEmail();
+        String password = credentials.getPassword();
 
-        if (email == null || password == null) {
-            log.error("Login request failed due to email or password is null. Email: {}", email);
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Email and password must be provided");
-        }
-        Optional<User> user = userRepository.findByEmail(email);
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new UserNotFoundException("User not found, please register!"));
 
-        if (user.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Unregistered user, please register!");
-        }
-
-        if (!passwordEncoder.matches(password, user.get().getPassword())) {
+        if (!passwordEncoder.matches(password, user.getPassword())) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid password");
         }
         log.info("Generating a token");
-        String token = jwtUtil.generateToken(user.get());
+        String token = jwtUtil.generateToken(user);
         return ResponseEntity.status(HttpStatus.OK).body(Map.of("token", token, "message", "Login successful"));
     }
 

@@ -1,6 +1,7 @@
 package com.dev.jobportal.controller;
 
 import com.dev.jobportal.model.User;
+import com.dev.jobportal.model.dto.LoginRequestDto;
 import com.dev.jobportal.service.UserService;
 import com.dev.jobportal.util.Constant;
 import jakarta.validation.Valid;
@@ -32,7 +33,8 @@ public class UserController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody Map<String, String> credentials) {
+    public ResponseEntity<?> login(@RequestBody @Valid LoginRequestDto credentials) {
+        log.info("Processing login request. E-mail: {}", credentials.getEmail());
         return userService.login(credentials);
     }
 
