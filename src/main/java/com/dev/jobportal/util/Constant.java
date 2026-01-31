@@ -14,4 +14,5 @@ public class Constant {
     public static final String APPLICATION_SUBMITTED = "Your application has been submitted";
     public static final String APPLICATION_SUBMITTED_SUCCESSFULLY = "Your application has been submitted successfully";
     public static final String APPLICATION_STATUS_CHANGED = "Your application status has been changed";
+    public static final String SIGN_UP_DETAILS = "Signing up as {} with E-mail ID: {}";
 }
