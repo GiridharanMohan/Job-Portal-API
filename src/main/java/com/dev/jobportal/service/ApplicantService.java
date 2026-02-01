@@ -125,8 +125,7 @@ public class ApplicantService {
 
     private boolean hasAlreadyApplied(Applicant applicant, Job job) {
         return applicationRepository
-                .findByApplicantIdAndJobId(applicant.getId(), job.getId())
-                .isPresent();
+                .existsByApplicantIdAndJobId(applicant.getId(), job.getId());
     }
 
     private boolean validFileType(MultipartFile file){

@@ -13,5 +13,5 @@ import java.util.Optional;
 public interface ApplicationRepository extends JpaRepository<Application, Long> {
     Page<Application> findAllByJob(Pageable pageable, Job job);
 
-    Optional<Application> findByApplicantIdAndJobId(Long applicationId, Long jobId);
+    boolean existsByApplicantIdAndJobId(Long applicationId, Long jobId);
 }
