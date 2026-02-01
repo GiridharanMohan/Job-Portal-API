@@ -4,6 +4,7 @@ import com.dev.jobportal.exception.UserNotFoundException;
 import com.dev.jobportal.model.Applicant;
 import com.dev.jobportal.model.User;
 import com.dev.jobportal.model.dto.LoginRequestDto;
+import com.dev.jobportal.model.dto.RegistrationRequestDto;
 import com.dev.jobportal.repository.ApplicantRepository;
 import com.dev.jobportal.repository.UserRepository;
 import com.dev.jobportal.util.Constant;
@@ -34,8 +35,8 @@ public class UserService {
     @Autowired
     private JwtUtil jwtUtil;
 
-    public ResponseEntity<?> recruiterRegistration(User user) {
-        if (userRepository.findByEmail(user.getEmail()).isPresent()) {
+    public ResponseEntity<?> recruiterRegistration(RegistrationRequestDto user) {
+        if (userRepository.existsByEmail(user.getEmail())) {
             log.warn("User already exists");
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Email already exists, try login");
         }
@@ -45,8 +46,8 @@ public class UserService {
         return ResponseEntity.status(HttpStatus.OK).body(Map.of("token", token, "message", "Recruiter registered successfully"));
     }
 
-    public ResponseEntity<?> employeeRegistration(User user) {
-        if (userRepository.findByEmail(user.getEmail()).isPresent()) {
+    public ResponseEntity<?> employeeRegistration(RegistrationRequestDto user) {
+        if (userRepository.existsByEmail(user.getEmail())) {
             log.warn("User already exists");
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Email already exists, try login");
         }
@@ -72,12 +73,15 @@ public class UserService {
         return ResponseEntity.status(HttpStatus.OK).body(Map.of("token", token, "message", "Login successful"));
     }
 
-    private User saveUserDetails(User user, String role){
+    private User saveUserDetails(RegistrationRequestDto user, String role){
         log.debug("Setting user details with ROLE: {}", role);
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
-        user.setRole(role);
-        user.setCreatedOn(LocalDateTime.now());
-        return userRepository.save(user);
+        User userEntity = new User();
+        userEntity.setEmail(user.getEmail());
+        userEntity.setUsername(user.getUsername());
+        userEntity.setPassword(passwordEncoder.encode(user.getPassword()));
+        userEntity.setRole(role);
+        userEntity.setCreatedOn(LocalDateTime.now());
+        return userRepository.save(userEntity);
     }
 
     private void saveApplicantProfile(User user){
