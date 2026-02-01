@@ -1,6 +1,7 @@
 package com.dev.jobportal.exception;
 
 import com.dev.jobportal.model.dto.ErrorResponse;
+import com.dev.jobportal.model.dto.ForError;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -66,14 +67,13 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public Map<String, String> handleMethodArgumentNotValidException(MethodArgumentNotValidException e){
-        log.error("MethodArgumentNotValidException occurred");
+    public ForError handleMethodArgumentNotValidException(MethodArgumentNotValidException e){
+        log.error("Missing mandatory fields!");
         Map<String, String> map = new HashMap<>();
-        map.put("timestamp", String.valueOf(LocalDateTime.now()));
         e.getBindingResult()
                 .getFieldErrors()
                 .forEach(errors ->
                         map.put(errors.getField(), errors.getDefaultMessage()));
-        return map;
+        return new ForError(map);
     }
 }
